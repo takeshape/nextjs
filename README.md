@@ -20,3 +20,7 @@ The following binaries are available for use in your npm scripts:
 Some functions are also exported:
 
 - `setProcessBranchUrl` - Set `NEXT_PUBLIC_BRANCH_TAKESHAPE_API_URL` on `process.env`.
+
+## Releases
+
+Run `npm run release` to tag the release. The release will be published when you publish the draft release on GitHub.
