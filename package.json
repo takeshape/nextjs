@@ -24,7 +24,7 @@
     "ci": "vitest run",
     "format": "eslint src --fix",
     "prepare": "npm run build",
-    "release": "np",
+    "release": "np --no-publish",
     "test": "npm run format && vitest run",
     "watch": "vitest"
   },
