@@ -56,6 +56,7 @@ export async function tagBranchForVercel() {
     return result?.branchVersion
   } catch {
     // Just eat the error
+    return
   }
 }
 
