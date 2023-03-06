@@ -54,15 +54,8 @@ export async function tagBranchForVercel() {
     })
 
     return result?.branchVersion
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === 'Could not create tag — branch not found') {
-        // Eat these
-        return
-      }
-    }
-
-    throw error
+  } catch {
+    // Just eat the error
   }
 }
 
@@ -73,6 +66,9 @@ export async function setProcessBranchUrl() {
 
   if (vercelEnv) {
     branch = await tagBranchForVercel()
+    if (!branch) {
+      log('Branch was not tagged. Review your config if this is unexpected.')
+    }
   } else {
     branch = await getBranchForLocal()
   }
