@@ -39,18 +39,31 @@ export async function tagBranchForVercel() {
         tagName: vercelGitCommitSha,
       },
     })
+
     return result?.branchVersion
   }
 
-  const result = await takeshape.tagBranch({
-    input: {
-      projectId,
-      environment: DEVELOPMENT_ENUM,
-      branchName: vercelGitCommitRef,
-      tagName: vercelGitCommitSha,
-    },
-  })
-  return result?.branchVersion
+  try {
+    const result = await takeshape.tagBranch({
+      input: {
+        projectId,
+        environment: DEVELOPMENT_ENUM,
+        branchName: vercelGitCommitRef,
+        tagName: vercelGitCommitSha,
+      },
+    })
+
+    return result?.branchVersion
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'Could not create tag — branch not found') {
+        // Eat these
+        return
+      }
+    }
+
+    throw error
+  }
 }
 
 export async function setProcessBranchUrl() {
