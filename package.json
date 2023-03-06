@@ -17,12 +17,7 @@
     "takeshape-prepare-env": "./dist/prepare-env.js"
   },
   "files": [
-    "dist/post-checkout.d.ts",
-    "dist/post-checkout.js",
-    "dist/get-branch-url.d.ts",
-    "dist/get-branch-url.js",
-    "dist/prepare-env.d.ts",
-    "dist/prepare-env.js"
+    "./dist"
   ],
   "scripts": {
     "build": "del-cli dist && tsc -p tsconfig.build.json",
@@ -114,27 +109,27 @@
     "dotenv": "^16.0.3",
     "graphql-request": "^5.2.0",
     "inquirer": "^9.1.4",
-    "simple-git": "^3.16.1"
+    "simple-git": "^3.17.0"
   },
   "devDependencies": {
     "@types/inquirer": "^9.0.3",
-    "@types/node": "^18.11.9",
-    "@typescript-eslint/eslint-plugin": "^5.42.0",
-    "@typescript-eslint/parser": "^5.42.0",
+    "@types/node": "^18.14.6",
+    "@typescript-eslint/eslint-plugin": "^5.54.1",
+    "@typescript-eslint/parser": "^5.54.1",
     "del-cli": "^5.0.0",
-    "eslint": "^8.25.0",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-import-resolver-typescript": "^3.5.1",
-    "eslint-plugin-import": "^2.26.0",
+    "eslint": "^8.35.0",
+    "eslint-config-prettier": "^8.7.0",
+    "eslint-import-resolver-typescript": "^3.5.3",
+    "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-json-format": "^2.0.1",
     "eslint-plugin-mdx": "^2.0.5",
     "eslint-plugin-prettier": "^4.2.1",
-    "next": "^13.0.2",
-    "np": "^7.6.2",
-    "prettier": "^2.7.1",
-    "type-fest": "^3.1.0",
-    "typescript": "^4.9.4",
-    "vitest": "^0.24.5"
+    "next": "^13.2.3",
+    "np": "^7.6.3",
+    "prettier": "^2.8.4",
+    "type-fest": "^3.6.1",
+    "typescript": "^4.9.5",
+    "vitest": "^0.29.2"
   },
   "engines": {
     "node": "^12.19.0 || ^14.15.0 || ^16.13.0 || ^18.0.0"
