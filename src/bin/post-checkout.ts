@@ -17,7 +17,7 @@ const questions = [
     prefix: logPrefix,
     name: 'shouldCreateBranch',
     message: 'Would you like to create a new API branch?',
-    default: false,
+    default: true,
   },
 ]
 
