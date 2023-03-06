@@ -13,9 +13,9 @@
   },
   "types": "./dist",
   "bin": {
-    "takeshape-get-branch-url": "./dist/get-branch-url.js",
-    "takeshape-post-checkout": "./dist/post-checkout.js",
-    "takeshape-prepare-env": "./dist/prepare-env.js"
+    "takeshape-get-branch-url": "./dist/bin/get-branch-url.js",
+    "takeshape-post-checkout": "./dist/bin/post-checkout.js",
+    "takeshape-prepare-env": "./dist/bin/prepare-env.js"
   },
   "files": [
     "./dist"
