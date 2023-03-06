@@ -33,18 +33,22 @@ export async function tagBranchForVercel() {
 
   if (vercelEnv === 'production') {
     const result = await takeshape.tagBranch({
-      projectId,
-      environment: PRODUCTION_ENUM,
-      tagName: vercelGitCommitSha,
+      input: {
+        projectId,
+        environment: PRODUCTION_ENUM,
+        tagName: vercelGitCommitSha,
+      },
     })
     return result?.branchVersion
   }
 
   const result = await takeshape.tagBranch({
-    projectId,
-    environment: DEVELOPMENT_ENUM,
-    branchName: vercelGitCommitRef,
-    tagName: vercelGitCommitSha,
+    input: {
+      projectId,
+      environment: DEVELOPMENT_ENUM,
+      branchName: vercelGitCommitRef,
+      tagName: vercelGitCommitSha,
+    },
   })
   return result?.branchVersion
 }
