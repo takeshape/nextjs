@@ -6,6 +6,7 @@
     "nextjs",
     "utils"
   ],
+  "repository": "takeshape/nextjs",
   "type": "module",
   "exports": {
     ".": "./dist/index.js"
