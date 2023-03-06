@@ -36,7 +36,7 @@ type TagBranchMutationPayload = {
 }
 
 export const tagBranchMutation = gql`
-  mutation ($input: TSCreateSchemaBranchTagInput!) {
+  mutation TagBranchMutation($input: TSCreateSchemaBranchTagInput!) {
     result: tsCreateSchemaBranchTag(input: $input) {
       branchVersion {
         branchName

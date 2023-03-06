@@ -21,6 +21,7 @@
   ],
   "scripts": {
     "build": "del-cli dist && tsc -p tsconfig.build.json",
+    "ci": "vitest run",
     "format": "eslint src --fix",
     "prepare": "npm run build",
     "release": "np",
@@ -124,6 +125,7 @@
     "eslint-plugin-json-format": "^2.0.1",
     "eslint-plugin-mdx": "^2.0.5",
     "eslint-plugin-prettier": "^4.2.1",
+    "msw": "^1.1.0",
     "next": "^13.2.3",
     "np": "^7.6.3",
     "prettier": "^2.8.4",
