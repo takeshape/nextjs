@@ -28,31 +28,38 @@ const questions = [
 
 inquirer.prompt(questions).then(async ({ shouldCreateBranch }: Questions) => {
   if (shouldCreateBranch) {
-    const client = getClient({ apiKey })
+    try {
+      const client = getClient({ apiKey })
 
-    const branchInfo = await getBranchInfo()
+      const branchInfo = await getBranchInfo()
 
-    if (!branchInfo) {
-      log(`Could not read your repo`)
-      return
+      if (!branchInfo) {
+        log(`Could not read your repo`)
+        return
+      }
+
+      const { headBranchName, isDefaultBranch } = branchInfo
+
+      if (isDefaultBranch) {
+        log('Default production branch already exists')
+        return
+      }
+
+      const result = await client.createBranch({
+        input: { projectId, environment: DEVELOPMENT, branchName: headBranchName },
+      })
+
+      if (result?.branch) {
+        log(`Created a new API branch '${result.branch.branchName}'`)
+        return
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Branch already exists') {
+        log('API branch already exists')
+        return
+      }
+
+      log('Unable to create a new API branch')
     }
-
-    const { headBranchName, isDefaultBranch } = branchInfo
-
-    if (isDefaultBranch) {
-      log('Default production branch already exists')
-      return
-    }
-
-    const result = await client.createBranch({
-      input: { projectId, environment: DEVELOPMENT, branchName: headBranchName },
-    })
-
-    if (result?.branch) {
-      log(`Created a new API branch '${result.branch.branchName}'`)
-      return
-    }
-
-    log('Unable to create a new API branch')
   }
 })

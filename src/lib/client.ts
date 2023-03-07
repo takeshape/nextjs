@@ -1,5 +1,6 @@
 import { gql, GraphQLClient } from 'graphql-request'
 import { ADMIN_URL } from './constants.js'
+import { formatErrorMessage } from './errors.js'
 
 type GetBranchQueryPayload = {
   result: {
@@ -98,41 +99,57 @@ export function getClient({ apiKey }: ClientConfig) {
         return
       }
 
-      const { result } = await client.request<GetBranchQueryPayload>(getBranchQuery, variables)
-      return result
+      try {
+        const { result } = await client.request<GetBranchQueryPayload>(getBranchQuery, variables)
+        return result
+      } catch (error) {
+        throw new Error(formatErrorMessage(error))
+      }
     },
     async tagBranch(variables: any) {
       if (!apiKey) {
         return
       }
 
-      const { result } = await client.request<TagBranchMutationPayload>(
-        tagBranchMutation,
-        variables,
-      )
-      return result
+      try {
+        const { result } = await client.request<TagBranchMutationPayload>(
+          tagBranchMutation,
+          variables,
+        )
+        return result
+      } catch (error) {
+        throw new Error(formatErrorMessage(error))
+      }
     },
     async createBranch(variables: any) {
       if (!apiKey) {
         return
       }
 
-      const { result } = await client.request<CreateBranchMutationPayload>(
-        createBranchMutation,
-        variables,
-      )
-      return result
+      try {
+        const { result } = await client.request<CreateBranchMutationPayload>(
+          createBranchMutation,
+          variables,
+        )
+        return result
+      } catch (error) {
+        throw new Error(formatErrorMessage(error))
+      }
     },
     async deleteBranch(variables: any) {
       if (!apiKey) {
         return
       }
 
-      const { result } = await client.request<DeleteBranchMutationPayload>(
-        deleteBranchMutation,
-        variables,
-      )
-      return result
+      try {
+        const { result } = await client.request<DeleteBranchMutationPayload>(
+          deleteBranchMutation,
+          variables,
+        )
+        return result
+      } catch (error) {
+        throw new Error(formatErrorMessage(error))
+      }
     },
   }
 }

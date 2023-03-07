@@ -21,7 +21,20 @@ export const handlers = [
     return res(ctx.data({ result: { branchVersion: { branchName, graphqlUrl } } }))
   }),
 
-  graphql.mutation('CreateBranchMutation', (_req, res, ctx) => {
+  graphql.mutation('CreateBranchMutation', (req, res, ctx) => {
+    if (req.variables['input'].branchName === 'duplicate') {
+      return res(
+        ctx.errors([
+          {
+            message: 'Branch already exists',
+            locations: [{ line: 3, column: 5 }],
+            path: ['result'],
+            type: 'GraphQLError',
+          },
+        ]),
+      )
+    }
+
     return res(ctx.data({ result: { branch: { branchName, graphqlUrl } } }))
   }),
 ]
@@ -55,6 +68,13 @@ test('tagBranch', async () => {
 
 test('createBranch', async () => {
   const client = getClient({ apiKey })
-  const branch = await client.createBranch({})
+  const branch = await client.createBranch({ input: { branchName: 'foo' } })
   expect(branch).toEqual({ branch: { branchName, graphqlUrl } })
+})
+
+test('createBranch - throws', async () => {
+  const client = getClient({ apiKey })
+  await expect(() =>
+    client.createBranch({ input: { branchName: 'duplicate' } }),
+  ).rejects.toThrowError('Branch already exists')
 })

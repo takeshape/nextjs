@@ -19,20 +19,24 @@ async function main() {
     log('Must provide a --name')
   }
 
-  log('Deleting API branch...')
+  try {
+    log('Deleting API branch...')
 
-  const client = getClient({ apiKey })
+    const client = getClient({ apiKey })
 
-  const result = await client.deleteBranch({
-    input: { projectId, environment: DEVELOPMENT, branchName },
-  })
+    const result = await client.deleteBranch({
+      input: { projectId, environment: DEVELOPMENT, branchName },
+    })
 
-  if (result?.deletedBranch) {
-    log(`Deleted the API branch '${result.deletedBranch.branchName}'`)
-    return
+    if (result?.deletedBranch) {
+      log(`Deleted the API branch '${result.deletedBranch.branchName}'`)
+      return
+    }
+
+    log('No API branches were deleted')
+  } catch (error) {
+    log('Unable to delete the API branch')
   }
-
-  log('No branches were deleted')
 }
 
 main()
