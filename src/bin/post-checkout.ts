@@ -2,7 +2,7 @@
 
 import inquirer from 'inquirer'
 import { getClient } from '../lib/client.js'
-import { DEVELOPMENT_ENUM } from '../lib/constants.js'
+import { DEVELOPMENT } from '../lib/constants.js'
 import { getBranchInfo } from '../lib/repo.js'
 import { getConfig, logPrefix, logWithPrefix as log } from '../lib/util.js'
 
@@ -45,7 +45,7 @@ inquirer.prompt(questions).then(async ({ shouldCreateBranch }: Questions) => {
     }
 
     const result = await client.createBranch({
-      input: { projectId, environment: DEVELOPMENT_ENUM, branchName: headBranchName },
+      input: { projectId, environment: DEVELOPMENT, branchName: headBranchName },
     })
 
     if (result?.branch) {

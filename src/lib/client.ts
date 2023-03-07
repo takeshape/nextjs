@@ -65,6 +65,24 @@ export const createBranchMutation = gql`
   }
 `
 
+type DeleteBranchMutationPayload = {
+  result: {
+    deletedBranch: {
+      branchName: string
+    }
+  }
+}
+
+export const deleteBranchMutation = gql`
+  mutation DeleteBranchMutation($input: TSDeleteSchemaBranchInput!) {
+    result: tsDeleteSchemaBranch(input: $input) {
+      deletedBranch {
+        branchName
+      }
+    }
+  }
+`
+
 export type Client = ReturnType<typeof getClient>
 
 export type ClientConfig = {
@@ -101,6 +119,17 @@ export function getClient({ apiKey }: ClientConfig) {
 
       const { result } = await client.request<CreateBranchMutationPayload>(
         createBranchMutation,
+        variables,
+      )
+      return result
+    },
+    async deleteBranch(variables: any) {
+      if (!apiKey) {
+        return
+      }
+
+      const { result } = await client.request<DeleteBranchMutationPayload>(
+        deleteBranchMutation,
         variables,
       )
       return result

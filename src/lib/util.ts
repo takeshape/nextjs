@@ -8,10 +8,11 @@ function getProjectId(apiUrl: string) {
 type Config = {
   apiKey: string | undefined
   apiUrl: string
-  projectId: string
   buildEnv: string | undefined
   buildGitCommitRef: string | undefined
   buildGitCommitSha: string | undefined
+  buildService: 'netlify' | 'vercel' | 'github' | undefined
+  projectId: string
 }
 
 let config: Config
@@ -38,17 +39,20 @@ export function getConfig() {
     throw new Error('NEXT_PUBLIC_TAKESHAPE_API_URL is invalid')
   }
 
+  let buildService: Config['buildService']
   let buildEnv
   let buildGitCommitRef
   let buildGitCommitSha
 
   if (process.env['VERCEL_ENV']) {
+    buildService = 'vercel'
     buildEnv = process.env['VERCEL_ENV']
     buildGitCommitRef = process.env['VERCEL_GIT_COMMIT_REF']
     buildGitCommitSha = process.env['VERCEL_GIT_COMMIT_SHA']
   }
 
   if (process.env['NETLIFY']) {
+    buildService = 'netlify'
     switch (process.env['CONTEXT']) {
       case 'deploy-preview':
         buildEnv = 'preview'
@@ -66,6 +70,12 @@ export function getConfig() {
     buildGitCommitSha = process.env['COMMIT_REF']
   }
 
+  if (process.env['GITHUB_ACTION']) {
+    buildService = 'github'
+    buildGitCommitRef = process.env['GITHUB_REF_NAME']
+    buildGitCommitSha = process.env['GITHUB_SHA']
+  }
+
   config = {
     apiKey,
     apiUrl,
@@ -73,6 +83,7 @@ export function getConfig() {
     buildEnv,
     buildGitCommitRef,
     buildGitCommitSha,
+    buildService,
   }
 
   return config

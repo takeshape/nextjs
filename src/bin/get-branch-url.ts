@@ -9,7 +9,7 @@ const { apiKey, buildEnv } = getConfig()
 
 async function main() {
   if (!apiKey) {
-    process.exit()
+    return
   }
 
   const client = getClient({ apiKey })
@@ -26,8 +26,6 @@ async function main() {
     // eslint-disable-next-line no-console
     console.log(branch.graphqlUrl)
   }
-
-  process.exit()
 }
 
 main()

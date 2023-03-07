@@ -1,5 +1,5 @@
 import { Client, getClient } from './client.js'
-import { DEVELOPMENT_ENUM, PRODUCTION_ENUM } from './constants.js'
+import { DEVELOPMENT, PRODUCTION } from './constants.js'
 import { getBranchInfo } from './repo.js'
 import { ApiBranch } from './types.js'
 import { getConfig, logWithPrefix as log } from './util.js'
@@ -22,7 +22,7 @@ export async function getBranchForDevelopment(client: Client): Promise<ApiBranch
 
   return client.getBranch({
     projectId,
-    environment: DEVELOPMENT_ENUM,
+    environment: DEVELOPMENT,
     branchName: headBranchName,
   })
 }
@@ -32,7 +32,7 @@ export async function tagBranchForDeployment(client: Client): Promise<ApiBranch 
     const result = await client.tagBranch({
       input: {
         projectId,
-        environment: PRODUCTION_ENUM,
+        environment: PRODUCTION,
         tagName: buildGitCommitSha,
       },
     })
@@ -44,7 +44,7 @@ export async function tagBranchForDeployment(client: Client): Promise<ApiBranch 
     const result = await client.tagBranch({
       input: {
         projectId,
-        environment: DEVELOPMENT_ENUM,
+        environment: DEVELOPMENT,
         branchName: buildGitCommitRef,
         tagName: buildGitCommitSha,
       },
