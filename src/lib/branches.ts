@@ -1,11 +1,12 @@
 import { getClient } from './client.js'
 import { DEVELOPMENT_ENUM, PRODUCTION_ENUM } from './constants.js'
 import { getBranchInfo } from './repo.js'
+import { ApiBranch } from './types.js'
 import { getConfig, logWithPrefix as log } from './util.js'
 
 const { projectId, vercelEnv, vercelGitCommitRef, vercelGitCommitSha } = getConfig()
 
-export async function getBranchForLocal() {
+export async function getBranchForLocal(): Promise<ApiBranch | undefined> {
   const branchInfo = await getBranchInfo()
 
   if (!branchInfo) {
@@ -28,7 +29,7 @@ export async function getBranchForLocal() {
   })
 }
 
-export async function tagBranchForVercel() {
+export async function tagBranchForVercel(): Promise<ApiBranch | undefined> {
   const takeshape = getClient()
 
   if (vercelEnv === 'production') {
@@ -60,7 +61,7 @@ export async function tagBranchForVercel() {
   }
 }
 
-export async function setProcessBranchUrl() {
+export async function setProcessBranchUrl(): Promise<string | undefined> {
   log('Getting branch url...')
 
   let branch

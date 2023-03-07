@@ -1,22 +1,23 @@
 #!/usr/bin/env node
 
 import { getBranchForLocal, tagBranchForVercel } from '../lib/branches.js'
+import { ApiBranch } from '../lib/types.js'
 import { getConfig } from '../lib/util.js'
 
 const { vercelEnv } = getConfig()
 
 async function main() {
-  let graphqlUrl
+  let branch: ApiBranch | undefined
 
   if (vercelEnv) {
-    graphqlUrl = await tagBranchForVercel()
+    branch = await tagBranchForVercel()
   } else {
-    graphqlUrl = await getBranchForLocal()
+    branch = await getBranchForLocal()
   }
 
-  if (graphqlUrl) {
+  if (branch) {
     // eslint-disable-next-line no-console
-    console.log(graphqlUrl)
+    console.log(branch.graphqlUrl)
   }
 
   process.exit()
