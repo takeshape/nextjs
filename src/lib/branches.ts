@@ -28,33 +28,30 @@ export async function getBranchForDevelopment(client: Client): Promise<ApiBranch
 }
 
 export async function tagBranchForDeployment(client: Client): Promise<ApiBranch | undefined> {
+  let variables
+
   if (buildEnv === 'production') {
-    const result = await client.tagBranch({
+    variables = {
       input: {
         projectId,
         environment: PRODUCTION,
         tagName: buildGitCommitSha,
       },
-    })
-
-    return result?.branchVersion
-  }
-
-  try {
-    const result = await client.tagBranch({
+    }
+  } else {
+    variables = {
       input: {
         projectId,
         environment: DEVELOPMENT,
         branchName: buildGitCommitRef,
         tagName: buildGitCommitSha,
       },
-    })
-
-    return result?.branchVersion
-  } catch {
-    // Just eat the error
-    return
+    }
   }
+
+  const result = await client.tagBranch(variables)
+
+  return result?.branchVersion
 }
 
 export async function setProcessBranchUrl(): Promise<string | undefined> {

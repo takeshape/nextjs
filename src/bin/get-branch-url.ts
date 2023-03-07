@@ -12,19 +12,23 @@ async function main() {
     return
   }
 
-  const client = getClient({ apiKey })
+  try {
+    const client = getClient({ apiKey })
 
-  let branch: ApiBranch | undefined
+    let branch: ApiBranch | undefined
 
-  if (buildEnv) {
-    branch = await tagBranchForDeployment(client)
-  } else {
-    branch = await getBranchForDevelopment(client)
-  }
+    if (buildEnv) {
+      branch = await tagBranchForDeployment(client)
+    } else {
+      branch = await getBranchForDevelopment(client)
+    }
 
-  if (branch) {
-    // eslint-disable-next-line no-console
-    console.log(branch.graphqlUrl)
+    if (branch) {
+      // eslint-disable-next-line no-console
+      console.log(branch.graphqlUrl)
+    }
+  } catch {
+    // Just eat the error and let it fallback
   }
 }
 
