@@ -1,6 +1,5 @@
 import { gql, GraphQLClient } from 'graphql-request'
 import { ADMIN_URL } from './constants.js'
-import { getConfig } from './util.js'
 
 type GetBranchQueryPayload = {
   result: {
@@ -66,16 +65,29 @@ export const createBranchMutation = gql`
   }
 `
 
-export function getClient() {
-  const { apiKey } = getConfig()
+export type Client = ReturnType<typeof getClient>
+
+export type ClientConfig = {
+  apiKey: string
+}
+
+export function getClient({ apiKey }: ClientConfig) {
   const client = new GraphQLClient(ADMIN_URL, { headers: { Authorization: `Bearer ${apiKey}` } })
 
   return {
     async getBranch(variables: any) {
+      if (!apiKey) {
+        return
+      }
+
       const { result } = await client.request<GetBranchQueryPayload>(getBranchQuery, variables)
       return result
     },
     async tagBranch(variables: any) {
+      if (!apiKey) {
+        return
+      }
+
       const { result } = await client.request<TagBranchMutationPayload>(
         tagBranchMutation,
         variables,
@@ -83,6 +95,10 @@ export function getClient() {
       return result
     },
     async createBranch(variables: any) {
+      if (!apiKey) {
+        return
+      }
+
       const { result } = await client.request<CreateBranchMutationPayload>(
         createBranchMutation,
         variables,

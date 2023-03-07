@@ -6,7 +6,7 @@ function getProjectId(apiUrl: string) {
 }
 
 type Config = {
-  apiKey: string
+  apiKey: string | undefined
   apiUrl: string
   projectId: string
   buildEnv: string | undefined
@@ -24,6 +24,8 @@ export function getConfig() {
   dotenv.config()
   dotenv.config({ path: '.env.local' })
 
+  const apiKey = process.env['TAKESHAPE_API_KEY']
+
   const apiUrl = process.env['NEXT_PUBLIC_TAKESHAPE_API_URL']
 
   if (!apiUrl) {
@@ -34,12 +36,6 @@ export function getConfig() {
 
   if (!projectId) {
     throw new Error('NEXT_PUBLIC_TAKESHAPE_API_URL is invalid')
-  }
-
-  const apiKey = process.env['TAKESHAPE_API_KEY']
-
-  if (!apiKey) {
-    throw new Error('TAKESHAPE_API_KEY is not set')
   }
 
   let buildEnv

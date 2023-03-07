@@ -1,19 +1,17 @@
-import { getClient } from './client.js'
+import { Client, getClient } from './client.js'
 import { DEVELOPMENT_ENUM, PRODUCTION_ENUM } from './constants.js'
 import { getBranchInfo } from './repo.js'
 import { ApiBranch } from './types.js'
 import { getConfig, logWithPrefix as log } from './util.js'
 
-const { projectId, buildEnv, buildGitCommitRef, buildGitCommitSha } = getConfig()
+const { apiKey, projectId, buildEnv, buildGitCommitRef, buildGitCommitSha } = getConfig()
 
-export async function getBranchForDevelopment(): Promise<ApiBranch | undefined> {
+export async function getBranchForDevelopment(client: Client): Promise<ApiBranch | undefined> {
   const branchInfo = await getBranchInfo()
 
   if (!branchInfo) {
     return
   }
-
-  const takeshape = getClient()
 
   const { headBranchName, isDefaultBranch } = branchInfo
 
@@ -22,18 +20,16 @@ export async function getBranchForDevelopment(): Promise<ApiBranch | undefined> 
     return
   }
 
-  return takeshape.getBranch({
+  return client.getBranch({
     projectId,
     environment: DEVELOPMENT_ENUM,
     branchName: headBranchName,
   })
 }
 
-export async function tagBranchForDeployment(): Promise<ApiBranch | undefined> {
-  const takeshape = getClient()
-
+export async function tagBranchForDeployment(client: Client): Promise<ApiBranch | undefined> {
   if (buildEnv === 'production') {
-    const result = await takeshape.tagBranch({
+    const result = await client.tagBranch({
       input: {
         projectId,
         environment: PRODUCTION_ENUM,
@@ -45,7 +41,7 @@ export async function tagBranchForDeployment(): Promise<ApiBranch | undefined> {
   }
 
   try {
-    const result = await takeshape.tagBranch({
+    const result = await client.tagBranch({
       input: {
         projectId,
         environment: DEVELOPMENT_ENUM,
@@ -62,17 +58,24 @@ export async function tagBranchForDeployment(): Promise<ApiBranch | undefined> {
 }
 
 export async function setProcessBranchUrl(): Promise<string | undefined> {
+  if (!apiKey) {
+    log('TAKESHAPE_API_KEY not set')
+    return
+  }
+
   log('Getting branch url...')
+
+  const client = getClient({ apiKey })
 
   let branch
 
   if (buildEnv) {
-    branch = await tagBranchForDeployment()
+    branch = await tagBranchForDeployment(client)
     if (!branch) {
       log('Branch was not tagged. Review your config if this is unexpected.')
     }
   } else {
-    branch = await getBranchForDevelopment()
+    branch = await getBranchForDevelopment(client)
   }
 
   if (branch) {

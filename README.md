@@ -1,4 +1,4 @@
-# nextjs
+# @takehsape/nextjs
 
 Tools for working with Next.js based projects. Supports [penny](https://github.com/takeshape/penny).
 

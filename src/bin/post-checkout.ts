@@ -6,6 +6,12 @@ import { DEVELOPMENT_ENUM } from '../lib/constants.js'
 import { getBranchInfo } from '../lib/repo.js'
 import { getConfig, logPrefix, logWithPrefix as log } from '../lib/util.js'
 
+const { apiKey, projectId } = getConfig()
+
+if (!apiKey) {
+  process.exit()
+}
+
 type Questions = {
   shouldCreateBranch: boolean
 }
@@ -22,8 +28,7 @@ const questions = [
 
 inquirer.prompt(questions).then(async ({ shouldCreateBranch }: Questions) => {
   if (shouldCreateBranch) {
-    const takeshape = getClient()
-    const { projectId } = getConfig()
+    const client = getClient({ apiKey })
 
     const branchInfo = await getBranchInfo()
 
@@ -39,7 +44,7 @@ inquirer.prompt(questions).then(async ({ shouldCreateBranch }: Questions) => {
       return
     }
 
-    const result = await takeshape.createBranch({
+    const result = await client.createBranch({
       input: { projectId, environment: DEVELOPMENT_ENUM, branchName: headBranchName },
     })
 

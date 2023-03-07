@@ -9,6 +9,7 @@ vi.mock('../util.js', () => {
   }
 })
 
+const apiKey = 'api-key'
 const branchName = 'my_branch'
 const graphqlUrl = 'https://api.takeshape.io/project/12345-abcdef/development/my_branch/graphql'
 
@@ -41,19 +42,19 @@ afterEach(() => {
 })
 
 test('getBranch', async () => {
-  const client = getClient()
+  const client = getClient({ apiKey })
   const branch = await client.getBranch({})
   expect(branch).toEqual({ branchName, graphqlUrl })
 })
 
 test('tagBranch', async () => {
-  const client = getClient()
+  const client = getClient({ apiKey })
   const branch = await client.tagBranch({})
   expect(branch).toEqual({ branchVersion: { branchName, graphqlUrl } })
 })
 
 test('createBranch', async () => {
-  const client = getClient()
+  const client = getClient({ apiKey })
   const branch = await client.createBranch({})
   expect(branch).toEqual({ branch: { branchName, graphqlUrl } })
 })
