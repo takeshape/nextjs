@@ -9,9 +9,9 @@ type Config = {
   apiKey: string
   apiUrl: string
   projectId: string
-  vercelEnv: string | undefined
-  vercelGitCommitRef: string | undefined
-  vercelGitCommitSha: string | undefined
+  buildEnv: string | undefined
+  buildGitCommitRef: string | undefined
+  buildGitCommitSha: string | undefined
 }
 
 let config: Config
@@ -42,17 +42,41 @@ export function getConfig() {
     throw new Error('TAKESHAPE_API_KEY is not set')
   }
 
-  const vercelEnv = process.env['VERCEL_ENV']
-  const vercelGitCommitRef = process.env['VERCEL_GIT_COMMIT_REF']
-  const vercelGitCommitSha = process.env['VERCEL_GIT_COMMIT_SHA']
+  let buildEnv
+  let buildGitCommitRef
+  let buildGitCommitSha
+
+  if (process.env['VERCEL_ENV']) {
+    buildEnv = process.env['VERCEL_ENV']
+    buildGitCommitRef = process.env['VERCEL_GIT_COMMIT_REF']
+    buildGitCommitSha = process.env['VERCEL_GIT_COMMIT_SHA']
+  }
+
+  if (process.env['NETLIFY']) {
+    switch (process.env['CONTEXT']) {
+      case 'deploy-preview':
+        buildEnv = 'preview'
+        break
+      case 'dev':
+        buildEnv = 'development'
+        break
+      default:
+        // production
+        // branch-deploy
+        buildEnv = 'production'
+    }
+
+    buildGitCommitRef = process.env['HEAD']
+    buildGitCommitSha = process.env['COMMIT_REF']
+  }
 
   config = {
     apiKey,
     apiUrl,
     projectId,
-    vercelEnv,
-    vercelGitCommitRef,
-    vercelGitCommitSha,
+    buildEnv,
+    buildGitCommitRef,
+    buildGitCommitSha,
   }
 
   return config

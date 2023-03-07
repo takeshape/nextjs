@@ -4,9 +4,9 @@ import { getBranchInfo } from './repo.js'
 import { ApiBranch } from './types.js'
 import { getConfig, logWithPrefix as log } from './util.js'
 
-const { projectId, vercelEnv, vercelGitCommitRef, vercelGitCommitSha } = getConfig()
+const { projectId, buildEnv, buildGitCommitRef, buildGitCommitSha } = getConfig()
 
-export async function getBranchForLocal(): Promise<ApiBranch | undefined> {
+export async function getBranchForDevelopment(): Promise<ApiBranch | undefined> {
   const branchInfo = await getBranchInfo()
 
   if (!branchInfo) {
@@ -29,15 +29,15 @@ export async function getBranchForLocal(): Promise<ApiBranch | undefined> {
   })
 }
 
-export async function tagBranchForVercel(): Promise<ApiBranch | undefined> {
+export async function tagBranchForDeployment(): Promise<ApiBranch | undefined> {
   const takeshape = getClient()
 
-  if (vercelEnv === 'production') {
+  if (buildEnv === 'production') {
     const result = await takeshape.tagBranch({
       input: {
         projectId,
         environment: PRODUCTION_ENUM,
-        tagName: vercelGitCommitSha,
+        tagName: buildGitCommitSha,
       },
     })
 
@@ -49,8 +49,8 @@ export async function tagBranchForVercel(): Promise<ApiBranch | undefined> {
       input: {
         projectId,
         environment: DEVELOPMENT_ENUM,
-        branchName: vercelGitCommitRef,
-        tagName: vercelGitCommitSha,
+        branchName: buildGitCommitRef,
+        tagName: buildGitCommitSha,
       },
     })
 
@@ -66,13 +66,13 @@ export async function setProcessBranchUrl(): Promise<string | undefined> {
 
   let branch
 
-  if (vercelEnv) {
-    branch = await tagBranchForVercel()
+  if (buildEnv) {
+    branch = await tagBranchForDeployment()
     if (!branch) {
       log('Branch was not tagged. Review your config if this is unexpected.')
     }
   } else {
-    branch = await getBranchForLocal()
+    branch = await getBranchForDevelopment()
   }
 
   if (branch) {

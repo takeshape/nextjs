@@ -13,14 +13,14 @@ const branchName = 'my_branch'
 const graphqlUrl = 'https://api.takeshape.io/project/12345-abcdef/development/my_branch/graphql'
 
 export const handlers = [
-  graphql.query('GetSchemaBranchQuery', (req, res, ctx) => {
+  graphql.query('GetSchemaBranchQuery', (_req, res, ctx) => {
     return res(ctx.data({ result: { branchName, graphqlUrl } }))
   }),
-  graphql.mutation('TagBranchMutation', (req, res, ctx) => {
+  graphql.mutation('TagBranchMutation', (_req, res, ctx) => {
     return res(ctx.data({ result: { branchVersion: { branchName, graphqlUrl } } }))
   }),
 
-  graphql.mutation('CreateBranchMutation', (req, res, ctx) => {
+  graphql.mutation('CreateBranchMutation', (_req, res, ctx) => {
     return res(ctx.data({ result: { branch: { branchName, graphqlUrl } } }))
   }),
 ]

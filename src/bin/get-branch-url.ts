@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 
-import { getBranchForLocal, tagBranchForVercel } from '../lib/branches.js'
+import { getBranchForDevelopment, tagBranchForDeployment } from '../lib/branches.js'
 import { ApiBranch } from '../lib/types.js'
 import { getConfig } from '../lib/util.js'
 
-const { vercelEnv } = getConfig()
+const { buildEnv } = getConfig()
 
 async function main() {
   let branch: ApiBranch | undefined
 
-  if (vercelEnv) {
-    branch = await tagBranchForVercel()
+  if (buildEnv) {
+    branch = await tagBranchForDeployment()
   } else {
-    branch = await getBranchForLocal()
+    branch = await getBranchForDevelopment()
   }
 
   if (branch) {
