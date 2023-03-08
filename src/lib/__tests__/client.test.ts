@@ -4,7 +4,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, expect, test, vi } from 'vi
 import { getClient } from '../client'
 import { DEVELOPMENT } from '../constants'
 
-vi.mock('../util.js', () => {
+vi.mock('../config.js', () => {
   return {
     getConfig: () => ({}),
   }
