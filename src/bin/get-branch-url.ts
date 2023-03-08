@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-import minimist, { ParsedArgs } from 'minimist'
 import { getBranchForLocal, tagBranchForBuild, tagBranchForCi } from '../lib/branches.js'
 import { getClient } from '../lib/client.js'
 import { getConfig } from '../lib/config.js'
@@ -9,7 +8,7 @@ import { BranchWithUrl } from '../lib/types.js'
 
 const { apiKey, env } = getConfig()
 
-async function main({ verbose }: ParsedArgs) {
+async function main() {
   if (!apiKey) {
     return
   }
@@ -40,4 +39,4 @@ async function main({ verbose }: ParsedArgs) {
   }
 }
 
-main(minimist(process.argv.slice(2)))
+main()
