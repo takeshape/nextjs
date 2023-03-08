@@ -1,5 +1,5 @@
 import { simpleGit } from 'simple-git'
-import { DEFAULT_BRANCH_NAMES } from './constants'
+import { DEFAULT_BRANCH_NAMES } from './constants.js'
 
 export async function getDefaultBranches() {
   const git = simpleGit()

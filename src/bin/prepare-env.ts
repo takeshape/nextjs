@@ -3,7 +3,7 @@
 import inquirer from 'inquirer'
 import fs from 'node:fs'
 import fsp from 'node:fs/promises'
-import { logWithPrefix as log } from '../lib/util'
+import { logWithPrefix as log } from '../lib/util.js'
 
 const files = {
   env: {

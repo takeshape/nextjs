@@ -1,6 +1,6 @@
 import chalk from 'chalk'
 import * as dotenv from 'dotenv'
-import { BuildEnv } from './types'
+import { BuildEnv } from './types.js'
 
 function assertEnv(name: string): string {
   const value = process.env[name]

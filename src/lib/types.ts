@@ -1,4 +1,4 @@
-import { DEVELOPMENT, PRODUCTION } from './constants'
+import { DEVELOPMENT, PRODUCTION } from './constants.js'
 
 export type Branch = {
   branchName?: string
