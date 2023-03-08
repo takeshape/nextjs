@@ -1,6 +1,28 @@
 import { simpleGit } from 'simple-git'
+import { DEFAULT_BRANCH_NAMES } from './constants'
 
-export async function getBranchInfo() {
+export async function getDefaultBranches() {
+  const git = simpleGit()
+
+  const isRepo = await git.checkIsRepo()
+
+  if (!isRepo) {
+    return DEFAULT_BRANCH_NAMES
+  }
+
+  const remoteOrigin = await git.remote(['show', 'origin'])
+
+  if (remoteOrigin) {
+    const remoteHeadBranchName = remoteOrigin.match(/HEAD branch: (.*)/)?.[1]
+    if (remoteHeadBranchName) {
+      return [remoteHeadBranchName]
+    }
+  }
+
+  return DEFAULT_BRANCH_NAMES
+}
+
+export async function getHeadBranchName() {
   const git = simpleGit()
 
   const isRepo = await git.checkIsRepo()
@@ -10,22 +32,6 @@ export async function getBranchInfo() {
   }
 
   const headBranchName = await git.revparse(['--abbrev-ref', 'HEAD'])
-  const remoteOrigin = await git.remote(['show', 'origin'])
 
-  let defaultBranchNames = ['main', 'master']
-
-  if (remoteOrigin) {
-    const remoteHeadBranchName = remoteOrigin.match(/HEAD branch: (.*)/)?.[1]
-    if (remoteHeadBranchName) {
-      defaultBranchNames = [remoteHeadBranchName]
-    }
-  }
-
-  const isDefaultBranch = defaultBranchNames.includes(headBranchName)
-
-  return {
-    headBranchName,
-    remoteOrigin,
-    isDefaultBranch,
-  }
+  return headBranchName
 }

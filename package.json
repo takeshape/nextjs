@@ -13,6 +13,7 @@
   },
   "types": "./dist",
   "bin": {
+    "takeshape-create-branch": "./dist/bin/create-branch.js",
     "takeshape-delete-branch": "./dist/bin/delete-branch.js",
     "takeshape-get-branch-url": "./dist/bin/get-branch-url.js",
     "takeshape-post-checkout": "./dist/bin/post-checkout.js",

@@ -1,21 +1,24 @@
 import { Client, getClient } from './client.js'
 import { DEVELOPMENT, PRODUCTION } from './constants.js'
-import { getBranchInfo } from './repo.js'
+import { getDefaultBranches, getHeadBranchName } from './repo.js'
 import { ApiBranch } from './types.js'
 import { getConfig, logWithPrefix as log } from './util.js'
 
 const { apiKey, projectId, buildEnv, buildGitCommitRef, buildGitCommitSha } = getConfig()
 
-export async function getBranchForDevelopment(client: Client): Promise<ApiBranch | undefined> {
-  const branchInfo = await getBranchInfo()
+export async function isDefaultBranch(branchName: string) {
+  const defaultBranchNames = await getDefaultBranches()
+  return defaultBranchNames.includes(branchName)
+}
 
-  if (!branchInfo) {
+export async function getBranchForDevelopment(client: Client): Promise<ApiBranch | undefined> {
+  const headBranchName = await getHeadBranchName()
+
+  if (!headBranchName) {
     return
   }
 
-  const { headBranchName, isDefaultBranch } = branchInfo
-
-  if (isDefaultBranch) {
+  if (await isDefaultBranch(headBranchName)) {
     // Default branch, do not need a branch URL
     return
   }

@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
 import inquirer from 'inquirer'
+import { isDefaultBranch } from '../lib/branches.js'
 import { getClient } from '../lib/client.js'
 import { DEVELOPMENT } from '../lib/constants.js'
-import { getBranchInfo } from '../lib/repo.js'
+import { getHeadBranchName } from '../lib/repo.js'
 import { getConfig, logPrefix, logWithPrefix as log } from '../lib/util.js'
 
 const { apiKey, projectId } = getConfig()
@@ -31,17 +32,15 @@ inquirer.prompt(questions).then(async ({ shouldCreateBranch }: Questions) => {
     try {
       const client = getClient({ apiKey })
 
-      const branchInfo = await getBranchInfo()
+      const headBranchName = await getHeadBranchName()
 
-      if (!branchInfo) {
+      if (!headBranchName) {
         log(`Could not read your repo`)
         return
       }
 
-      const { headBranchName, isDefaultBranch } = branchInfo
-
-      if (isDefaultBranch) {
-        log('Default production branch already exists')
+      if (await isDefaultBranch(headBranchName)) {
+        log(`Default 'production' branch already exists`)
         return
       }
 

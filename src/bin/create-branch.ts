@@ -30,26 +30,26 @@ async function main({ name }: ParsedArgs) {
     }
 
     if (await isDefaultBranch(branchName)) {
-      log(`Cannot delete the 'production' branch`)
+      log('Default production branch already exists')
       return
     }
 
-    log('Deleting API branch...')
+    log('Creating API branch...')
 
     const client = getClient({ apiKey })
 
-    const result = await client.deleteBranch({
+    const result = await client.createBranch({
       input: { projectId, environment: DEVELOPMENT, branchName },
     })
 
-    if (result?.deletedBranch) {
-      log(`Deleted the API branch '${result.deletedBranch.branchName}'`)
+    if (result?.branch) {
+      log(`Created the API branch '${result.branch.branchName}'`)
       return
     }
 
-    log('No API branches were deleted')
+    log('No API branches were created')
   } catch (error) {
-    log('Unable to delete the API branch')
+    log('Unable to create the API branch')
   }
 }
 
