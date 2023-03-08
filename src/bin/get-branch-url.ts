@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-import { getBranchForDevelopment, tagBranchForDeployment } from '../lib/branches.js'
+import { getBranchForLocal, tagBranchForBuild, tagBranchForCi } from '../lib/branches.js'
 import { getClient } from '../lib/client.js'
-import { ApiBranch } from '../lib/types.js'
+import { BranchWithUrl } from '../lib/types.js'
 import { getConfig } from '../lib/util.js'
 
-const { apiKey, buildEnv } = getConfig()
+const { apiKey, env } = getConfig()
 
 async function main() {
   if (!apiKey) {
@@ -15,12 +15,18 @@ async function main() {
   try {
     const client = getClient({ apiKey })
 
-    let branch: ApiBranch | undefined
+    let branch: BranchWithUrl | undefined
 
-    if (buildEnv) {
-      branch = await tagBranchForDeployment(client)
-    } else {
-      branch = await getBranchForDevelopment(client)
+    if (env === 'build') {
+      branch = await tagBranchForBuild(client)
+    }
+
+    if (env === 'ci') {
+      branch = await tagBranchForCi(client)
+    }
+
+    if (env === 'local') {
+      branch = await getBranchForLocal(client)
     }
 
     if (branch) {

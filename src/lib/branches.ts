@@ -1,17 +1,17 @@
-import { Client, getClient } from './client.js'
+import { Client, getClient, TagBranchMutationVariables } from './client.js'
 import { DEVELOPMENT, PRODUCTION } from './constants.js'
 import { getDefaultBranches, getHeadBranchName } from './repo.js'
-import { ApiBranch } from './types.js'
-import { getConfig, logWithPrefix as log } from './util.js'
+import { BranchWithUrl } from './types.js'
+import { getBuildConfig, getCiConfig, getConfig, logWithPrefix as log } from './util.js'
 
-const { apiKey, projectId, buildEnv, buildGitCommitRef, buildGitCommitSha } = getConfig()
+const { apiKey, projectId, env } = getConfig()
 
 export async function isDefaultBranch(branchName: string) {
   const defaultBranchNames = await getDefaultBranches()
   return defaultBranchNames.includes(branchName)
 }
 
-export async function getBranchForDevelopment(client: Client): Promise<ApiBranch | undefined> {
+export async function getBranchForLocal(client: Client): Promise<BranchWithUrl | undefined> {
   const headBranchName = await getHeadBranchName()
 
   if (!headBranchName) {
@@ -30,15 +30,18 @@ export async function getBranchForDevelopment(client: Client): Promise<ApiBranch
   })
 }
 
-export async function tagBranchForDeployment(client: Client): Promise<ApiBranch | undefined> {
-  let variables
+export async function tagBranchForBuild(client: Client): Promise<BranchWithUrl | undefined> {
+  const { buildEnv, gitCommitRef, gitCommitSha } = getBuildConfig()
+
+  let variables: TagBranchMutationVariables
 
   if (buildEnv === 'production') {
     variables = {
       input: {
         projectId,
         environment: PRODUCTION,
-        tagName: buildGitCommitSha,
+        branchName: undefined,
+        tagName: gitCommitSha,
       },
     }
   } else {
@@ -46,13 +49,28 @@ export async function tagBranchForDeployment(client: Client): Promise<ApiBranch 
       input: {
         projectId,
         environment: DEVELOPMENT,
-        branchName: buildGitCommitRef,
-        tagName: buildGitCommitSha,
+        branchName: gitCommitRef,
+        tagName: gitCommitSha,
       },
     }
   }
 
   const result = await client.tagBranch(variables)
+
+  return result?.branchVersion
+}
+
+export async function tagBranchForCi(client: Client): Promise<BranchWithUrl | undefined> {
+  const { gitCommitRef, gitCommitSha } = getCiConfig()
+
+  const result = await client.tagBranch({
+    input: {
+      projectId,
+      environment: DEVELOPMENT,
+      branchName: gitCommitRef,
+      tagName: gitCommitSha,
+    },
+  })
 
   return result?.branchVersion
 }
@@ -69,13 +87,22 @@ export async function setProcessBranchUrl(): Promise<string | undefined> {
 
   let branch
 
-  if (buildEnv) {
-    branch = await tagBranchForDeployment(client)
+  if (env === 'build') {
+    branch = await tagBranchForBuild(client)
     if (!branch) {
       log('Branch was not tagged. Review your config if this is unexpected.')
     }
-  } else {
-    branch = await getBranchForDevelopment(client)
+  }
+
+  if (env === 'ci') {
+    branch = await tagBranchForCi(client)
+    if (!branch) {
+      log('Branch was not tagged. Review your config if this is unexpected.')
+    }
+  }
+
+  if (env === 'local') {
+    branch = await getBranchForLocal(client)
   }
 
   if (branch) {
@@ -84,7 +111,7 @@ export async function setProcessBranchUrl(): Promise<string | undefined> {
     return branch.graphqlUrl
   }
 
-  log('Using default production API branch')
+  log(`Using default 'production' API branch`)
 
   return
 }

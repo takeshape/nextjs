@@ -2,6 +2,7 @@ import { graphql } from 'msw'
 import { setupServer } from 'msw/node'
 import { afterAll, afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest'
 import { getClient } from '../client'
+import { DEVELOPMENT } from '../constants'
 
 vi.mock('../util.js', () => {
   return {
@@ -9,6 +10,7 @@ vi.mock('../util.js', () => {
   }
 })
 
+const projectId = 'project-id'
 const apiKey = 'api-key'
 const branchName = 'my_branch'
 const graphqlUrl = 'https://api.takeshape.io/project/12345-abcdef/development/my_branch/graphql'
@@ -56,25 +58,31 @@ afterEach(() => {
 
 test('getBranch', async () => {
   const client = getClient({ apiKey })
-  const branch = await client.getBranch({})
+  const branch = await client.getBranch({ projectId, environment: DEVELOPMENT, branchName })
   expect(branch).toEqual({ branchName, graphqlUrl })
 })
 
 test('tagBranch', async () => {
   const client = getClient({ apiKey })
-  const branch = await client.tagBranch({})
+  const branch = await client.tagBranch({
+    input: { projectId, environment: DEVELOPMENT, branchName, tagName: 'abc123' },
+  })
   expect(branch).toEqual({ branchVersion: { branchName, graphqlUrl } })
 })
 
 test('createBranch', async () => {
   const client = getClient({ apiKey })
-  const branch = await client.createBranch({ input: { branchName: 'foo' } })
+  const branch = await client.createBranch({
+    input: { projectId, branchName: 'foo', environment: DEVELOPMENT },
+  })
   expect(branch).toEqual({ branch: { branchName, graphqlUrl } })
 })
 
 test('createBranch - throws', async () => {
   const client = getClient({ apiKey })
   await expect(() =>
-    client.createBranch({ input: { branchName: 'duplicate' } }),
+    client.createBranch({
+      input: { projectId, environment: DEVELOPMENT, branchName: 'duplicate' },
+    }),
   ).rejects.toThrowError('Branch already exists')
 })

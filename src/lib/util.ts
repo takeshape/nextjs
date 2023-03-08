@@ -1,17 +1,21 @@
 import chalk from 'chalk'
 import * as dotenv from 'dotenv'
+import { BuildEnv } from './types'
 
-function getProjectId(apiUrl: string) {
-  return apiUrl.match(/project\/([a-z0-9-]+)/)?.[1]
+function assertEnv(name: string): string {
+  const value = process.env[name]
+
+  if (value === undefined) {
+    throw new Error(`${name} is not defined`)
+  }
+
+  return value
 }
 
 type Config = {
   apiKey: string | undefined
   apiUrl: string
-  buildEnv: string | undefined
-  buildGitCommitRef: string | undefined
-  buildGitCommitSha: string | undefined
-  buildService: 'netlify' | 'vercel' | 'github' | undefined
+  env: 'local' | 'build' | 'ci'
   projectId: string
 }
 
@@ -26,33 +30,53 @@ export function getConfig() {
   dotenv.config({ path: '.env.local' })
 
   const apiKey = process.env['TAKESHAPE_API_KEY']
-
-  const apiUrl = process.env['NEXT_PUBLIC_TAKESHAPE_API_URL']
-
-  if (!apiUrl) {
-    throw new Error('NEXT_PUBLIC_TAKESHAPE_API_URL is not set')
-  }
-
+  const apiUrl = assertEnv('NEXT_PUBLIC_TAKESHAPE_API_URL')
   const projectId = getProjectId(apiUrl)
 
   if (!projectId) {
     throw new Error('NEXT_PUBLIC_TAKESHAPE_API_URL is invalid')
   }
 
-  let buildService: Config['buildService']
-  let buildEnv
-  let buildGitCommitRef
-  let buildGitCommitSha
+  let env: Config['env'] = 'local'
 
+  if (process.env['VERCEL_ENV'] || process.env['NETLIFY']) {
+    env = 'build'
+  }
+
+  if (process.env['GITHUB_ACTION']) {
+    env = 'ci'
+  }
+
+  config = {
+    apiKey,
+    apiUrl,
+    env,
+    projectId,
+  }
+
+  return config
+}
+
+type BuildConfig = {
+  service: 'vercel' | 'netlify'
+  buildEnv: BuildEnv
+  gitCommitRef: string
+  gitCommitSha: string
+}
+
+export function getBuildConfig(): BuildConfig {
   if (process.env['VERCEL_ENV']) {
-    buildService = 'vercel'
-    buildEnv = process.env['VERCEL_ENV']
-    buildGitCommitRef = process.env['VERCEL_GIT_COMMIT_REF']
-    buildGitCommitSha = process.env['VERCEL_GIT_COMMIT_SHA']
+    return {
+      service: 'vercel',
+      buildEnv: process.env['VERCEL_ENV'] as BuildEnv,
+      gitCommitRef: assertEnv('VERCEL_GIT_COMMIT_REF'),
+      gitCommitSha: assertEnv('VERCEL_GIT_COMMIT_SHA'),
+    }
   }
 
   if (process.env['NETLIFY']) {
-    buildService = 'netlify'
+    let buildEnv: BuildEnv
+
     switch (process.env['CONTEXT']) {
       case 'deploy-preview':
         buildEnv = 'preview'
@@ -66,27 +90,37 @@ export function getConfig() {
         buildEnv = 'production'
     }
 
-    buildGitCommitRef = process.env['HEAD']
-    buildGitCommitSha = process.env['COMMIT_REF']
+    return {
+      service: 'netlify',
+      buildEnv,
+      gitCommitRef: assertEnv('HEAD'),
+      gitCommitSha: assertEnv('COMMIT_REF'),
+    }
   }
 
+  throw new Error(`Can only be called in 'build' environments`)
+}
+
+type CiConfig = {
+  service: 'github'
+  gitCommitRef: string
+  gitCommitSha: string
+}
+
+export function getCiConfig(): CiConfig {
   if (process.env['GITHUB_ACTION']) {
-    buildService = 'github'
-    buildGitCommitRef = process.env['GITHUB_REF_NAME']
-    buildGitCommitSha = process.env['GITHUB_SHA']
+    return {
+      service: 'github',
+      gitCommitRef: assertEnv('GITHUB_REF_NAME'),
+      gitCommitSha: assertEnv('GITHUB_SHA'),
+    }
   }
 
-  config = {
-    apiKey,
-    apiUrl,
-    projectId,
-    buildEnv,
-    buildGitCommitRef,
-    buildGitCommitSha,
-    buildService,
-  }
+  throw new Error(`Can only be called in 'ci' environments`)
+}
 
-  return config
+function getProjectId(apiUrl: string) {
+  return apiUrl.match(/project\/([a-z0-9-]+)/)?.[1]
 }
 
 export const logPrefix = `${chalk.cyan('takeshape')} -`

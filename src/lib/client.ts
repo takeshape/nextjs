@@ -1,12 +1,17 @@
 import { gql, GraphQLClient } from 'graphql-request'
 import { ADMIN_URL } from './constants.js'
 import { formatErrorMessage } from './errors.js'
+import {
+  Branch,
+  BranchArgs,
+  BranchWithLatestVersion,
+  BranchWithUrl,
+  DevelopmentBranch,
+  DevelopmentBranchWithUrl,
+} from './types.js'
 
 type GetBranchQueryPayload = {
-  result: {
-    branchName: string
-    graphqlUrl: string
-  }
+  result: BranchWithLatestVersion
 }
 
 export const getBranchQuery = gql`
@@ -20,18 +25,28 @@ export const getBranchQuery = gql`
       environment: $environment
       branchName: $branchName
     ) {
+      environment
       branchName
       graphqlUrl
+      latestVersion {
+        branchName
+        environment
+        graphqlUrl
+        version
+      }
     }
   }
 `
 
+export type TagBranchMutationVariables = {
+  input: BranchArgs & {
+    tagName: string
+  }
+}
+
 type TagBranchMutationPayload = {
   result: {
-    branchVersion: {
-      branchName: string
-      graphqlUrl: string
-    }
+    branchVersion: BranchWithUrl
   }
 }
 
@@ -39,6 +54,7 @@ export const tagBranchMutation = gql`
   mutation TagBranchMutation($input: TSCreateSchemaBranchTagInput!) {
     result: tsCreateSchemaBranchTag(input: $input) {
       branchVersion {
+        environment
         branchName
         graphqlUrl
       }
@@ -46,12 +62,13 @@ export const tagBranchMutation = gql`
   }
 `
 
+type CreateBranchMutationVariables = {
+  input: BranchArgs
+}
+
 type CreateBranchMutationPayload = {
   result: {
-    branch: {
-      branchName: string
-      graphqlUrl: string
-    }
+    branch: DevelopmentBranchWithUrl
   }
 }
 
@@ -59,6 +76,7 @@ export const createBranchMutation = gql`
   mutation CreateBranchMutation($input: TSCreateSchemaBranchInput!) {
     result: tsCreateSchemaBranch(input: $input) {
       branch {
+        environment
         branchName
         graphqlUrl
       }
@@ -66,11 +84,13 @@ export const createBranchMutation = gql`
   }
 `
 
+type DeleteBranchMutationVariables = {
+  input: BranchArgs
+}
+
 type DeleteBranchMutationPayload = {
   result: {
-    deletedBranch: {
-      branchName: string
-    }
+    deletedBranch: DevelopmentBranch
   }
 }
 
@@ -78,6 +98,41 @@ export const deleteBranchMutation = gql`
   mutation DeleteBranchMutation($input: TSDeleteSchemaBranchInput!) {
     result: tsDeleteSchemaBranch(input: $input) {
       deletedBranch {
+        environment
+        branchName
+      }
+    }
+  }
+`
+
+type MergeBranchMutationVariables = {
+  input: {
+    deleteMergedHead: boolean
+    projectId: string
+    head: Branch
+    base: Branch
+    target: Branch & {
+      version: number
+    }
+  }
+}
+
+type MergeBranchMutationPayload = {
+  result: {
+    deletedBranch: DevelopmentBranch
+    mergedBranch: Branch
+  }
+}
+
+export const mergeBranchMutation = gql`
+  mutation MergeBranchMutation($input: TSMergeSchemaBranchInput!) {
+    result: tsMergeSchemaBranch(input: $input) {
+      deletedBranch {
+        environment
+        branchName
+      }
+      mergedBranch {
+        environment
         branchName
       }
     }
@@ -94,26 +149,14 @@ export function getClient({ apiKey }: ClientConfig) {
   const client = new GraphQLClient(ADMIN_URL, { headers: { Authorization: `Bearer ${apiKey}` } })
 
   return {
-    async getBranch(variables: any) {
+    async getBranch(variables: BranchArgs) {
       if (!apiKey) {
         return
       }
 
       try {
-        const { result } = await client.request<GetBranchQueryPayload>(getBranchQuery, variables)
-        return result
-      } catch (error) {
-        throw new Error(formatErrorMessage(error))
-      }
-    },
-    async tagBranch(variables: any) {
-      if (!apiKey) {
-        return
-      }
-
-      try {
-        const { result } = await client.request<TagBranchMutationPayload>(
-          tagBranchMutation,
+        const { result } = await client.request<GetBranchQueryPayload, BranchArgs>(
+          getBranchQuery,
           variables,
         )
         return result
@@ -121,31 +164,61 @@ export function getClient({ apiKey }: ClientConfig) {
         throw new Error(formatErrorMessage(error))
       }
     },
-    async createBranch(variables: any) {
+    async tagBranch(variables: TagBranchMutationVariables) {
       if (!apiKey) {
         return
       }
 
       try {
-        const { result } = await client.request<CreateBranchMutationPayload>(
-          createBranchMutation,
-          variables,
-        )
+        const { result } = await client.request<
+          TagBranchMutationPayload,
+          TagBranchMutationVariables
+        >(tagBranchMutation, variables)
         return result
       } catch (error) {
         throw new Error(formatErrorMessage(error))
       }
     },
-    async deleteBranch(variables: any) {
+    async createBranch(variables: CreateBranchMutationVariables) {
       if (!apiKey) {
         return
       }
 
       try {
-        const { result } = await client.request<DeleteBranchMutationPayload>(
-          deleteBranchMutation,
-          variables,
-        )
+        const { result } = await client.request<
+          CreateBranchMutationPayload,
+          CreateBranchMutationVariables
+        >(createBranchMutation, variables)
+        return result
+      } catch (error) {
+        throw new Error(formatErrorMessage(error))
+      }
+    },
+    async deleteBranch(variables: DeleteBranchMutationVariables) {
+      if (!apiKey) {
+        return
+      }
+
+      try {
+        const { result } = await client.request<
+          DeleteBranchMutationPayload,
+          DeleteBranchMutationVariables
+        >(deleteBranchMutation, variables)
+        return result
+      } catch (error) {
+        throw new Error(formatErrorMessage(error))
+      }
+    },
+    async mergeBranch(variables: MergeBranchMutationVariables) {
+      if (!apiKey) {
+        return
+      }
+
+      try {
+        const { result } = await client.request<
+          MergeBranchMutationPayload,
+          MergeBranchMutationVariables
+        >(mergeBranchMutation, variables)
         return result
       } catch (error) {
         throw new Error(formatErrorMessage(error))
