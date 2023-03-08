@@ -26,3 +26,5 @@ export type BranchArgs = Branch & {
 }
 
 export type BuildEnv = 'production' | 'preview' | 'development'
+
+export type LogLevel = 20 | 30 | 50

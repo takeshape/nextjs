@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { getConfig } from '../util'
+import { getConfig } from '../config'
 
 test('getConfig', async () => {
   process.env['NEXT_PUBLIC_TAKESHAPE_API_URL'] =

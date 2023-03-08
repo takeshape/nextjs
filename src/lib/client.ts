@@ -1,6 +1,7 @@
 import { gql, GraphQLClient } from 'graphql-request'
 import { ADMIN_URL } from './constants.js'
 import { formatErrorMessage } from './errors.js'
+import { log } from './log.js'
 import {
   Branch,
   BranchArgs,
@@ -161,6 +162,7 @@ export function getClient({ apiKey }: ClientConfig) {
         )
         return result
       } catch (error) {
+        log.debug(error)
         throw new Error(formatErrorMessage(error))
       }
     },
@@ -176,6 +178,7 @@ export function getClient({ apiKey }: ClientConfig) {
         >(tagBranchMutation, variables)
         return result
       } catch (error) {
+        log.debug(error)
         throw new Error(formatErrorMessage(error))
       }
     },
@@ -191,6 +194,7 @@ export function getClient({ apiKey }: ClientConfig) {
         >(createBranchMutation, variables)
         return result
       } catch (error) {
+        log.debug(error)
         throw new Error(formatErrorMessage(error))
       }
     },
@@ -206,6 +210,7 @@ export function getClient({ apiKey }: ClientConfig) {
         >(deleteBranchMutation, variables)
         return result
       } catch (error) {
+        log.debug(error)
         throw new Error(formatErrorMessage(error))
       }
     },
@@ -221,6 +226,7 @@ export function getClient({ apiKey }: ClientConfig) {
         >(mergeBranchMutation, variables)
         return result
       } catch (error) {
+        log.debug(error)
         throw new Error(formatErrorMessage(error))
       }
     },

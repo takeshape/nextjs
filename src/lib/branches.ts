@@ -1,8 +1,9 @@
 import { Client, getClient, TagBranchMutationVariables } from './client.js'
+import { getBuildConfig, getCiConfig, getConfig } from './config.js'
 import { DEVELOPMENT, PRODUCTION } from './constants.js'
+import { log } from './log.js'
 import { getDefaultBranches, getHeadBranchName } from './repo.js'
 import { BranchWithUrl } from './types.js'
-import { getBuildConfig, getCiConfig, getConfig, logWithPrefix as log } from './util.js'
 
 const { apiKey, projectId, env } = getConfig()
 
@@ -77,11 +78,11 @@ export async function tagBranchForCi(client: Client): Promise<BranchWithUrl | un
 
 export async function setProcessBranchUrl(): Promise<string | undefined> {
   if (!apiKey) {
-    log('TAKESHAPE_API_KEY not set')
+    log.error('TAKESHAPE_API_KEY not set')
     return
   }
 
-  log('Getting branch url...')
+  log.info('Getting branch url...')
 
   const client = getClient({ apiKey })
 
@@ -90,14 +91,14 @@ export async function setProcessBranchUrl(): Promise<string | undefined> {
   if (env === 'build') {
     branch = await tagBranchForBuild(client)
     if (!branch) {
-      log('Branch was not tagged. Review your config if this is unexpected.')
+      log.info('Branch was not tagged. Review your config if this is unexpected.')
     }
   }
 
   if (env === 'ci') {
     branch = await tagBranchForCi(client)
     if (!branch) {
-      log('Branch was not tagged. Review your config if this is unexpected.')
+      log.info('Branch was not tagged. Review your config if this is unexpected.')
     }
   }
 
@@ -106,12 +107,12 @@ export async function setProcessBranchUrl(): Promise<string | undefined> {
   }
 
   if (branch) {
-    log(`Found API branch '${branch.branchName}'`)
+    log.info(`Found API branch '${branch.branchName}'`)
     process.env['NEXT_PUBLIC_BRANCH_TAKESHAPE_API_URL'] = branch.graphqlUrl
     return branch.graphqlUrl
   }
 
-  log(`Using default 'production' API branch`)
+  log.info(`Using default 'production' API branch`)
 
   return
 }

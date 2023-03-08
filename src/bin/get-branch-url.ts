@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 
+import minimist, { ParsedArgs } from 'minimist'
 import { getBranchForLocal, tagBranchForBuild, tagBranchForCi } from '../lib/branches.js'
 import { getClient } from '../lib/client.js'
+import { getConfig } from '../lib/config.js'
+import { log } from '../lib/log.js'
 import { BranchWithUrl } from '../lib/types.js'
-import { getConfig } from '../lib/util.js'
 
 const { apiKey, env } = getConfig()
 
-async function main() {
+async function main({ verbose }: ParsedArgs) {
   if (!apiKey) {
     return
   }
@@ -33,9 +35,9 @@ async function main() {
       // eslint-disable-next-line no-console
       console.log(branch.graphqlUrl)
     }
-  } catch {
-    // Just eat the error and let it fallback
+  } catch (error) {
+    log.debug(error)
   }
 }
 
-main()
+main(minimist(process.argv.slice(2)))

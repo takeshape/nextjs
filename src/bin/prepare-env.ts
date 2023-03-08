@@ -3,7 +3,7 @@
 import inquirer from 'inquirer'
 import fs from 'node:fs'
 import fsp from 'node:fs/promises'
-import { logWithPrefix as log } from '../lib/util.js'
+import { log } from '../lib/log.js'
 
 const files = {
   env: {
@@ -52,17 +52,17 @@ const questions = [
 
 inquirer.prompt(questions).then(async (answers) => {
   if (answers.overwriteEnvFile === true || answers.overwriteEnvFile === undefined) {
-    log('Creating new .env file')
+    log.info('Creating new .env file')
     await fsp.copyFile(files.env.src, files.env.dest)
   }
 
   if (answers.overwriteEnvTestFile === true || answers.overwriteEnvTestFile === undefined) {
-    log('Creating new .env.test file')
+    log.info('Creating new .env.test file')
     await fsp.copyFile(files.envTest.src, files.envTest.dest)
   }
 
   if (answers.overwriteEnvLocalFile === true || answers.overwriteEnvLocalFile === undefined) {
-    log('Creating new .env.local file')
+    log.info('Creating new .env.local file')
     await fsp.copyFile(files.envLocal.src, files.envLocal.dest)
   }
 })

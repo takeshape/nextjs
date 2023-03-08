@@ -3,9 +3,10 @@
 import inquirer from 'inquirer'
 import { isDefaultBranch } from '../lib/branches.js'
 import { getClient } from '../lib/client.js'
+import { getConfig } from '../lib/config.js'
 import { DEVELOPMENT } from '../lib/constants.js'
+import { log, logPrefix } from '../lib/log.js'
 import { getHeadBranchName } from '../lib/repo.js'
-import { getConfig, logPrefix, logWithPrefix as log } from '../lib/util.js'
 
 const { apiKey, projectId } = getConfig()
 
@@ -35,12 +36,12 @@ inquirer.prompt(questions).then(async ({ shouldCreateBranch }: Questions) => {
       const headBranchName = await getHeadBranchName()
 
       if (!headBranchName) {
-        log(`Could not read your repo`)
+        log.error(`Could not read your repo`)
         return
       }
 
       if (await isDefaultBranch(headBranchName)) {
-        log(`Default 'production' branch already exists`)
+        log.error(`Default 'production' branch already exists`)
         return
       }
 
@@ -49,16 +50,16 @@ inquirer.prompt(questions).then(async ({ shouldCreateBranch }: Questions) => {
       })
 
       if (result?.branch) {
-        log(`Created a new API branch '${result.branch.branchName}'`)
+        log.info(`Created a new API branch '${result.branch.branchName}'`)
         return
       }
     } catch (error) {
-      if (error instanceof Error && error.message === 'Branch already exists') {
-        log('API branch already exists')
+      log.debug(error)
+
+      if (error instanceof Error) {
+        log.error(error.message)
         return
       }
-
-      log('Unable to create a new API branch')
     }
   }
 })

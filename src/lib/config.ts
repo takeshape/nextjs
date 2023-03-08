@@ -1,6 +1,5 @@
-import chalk from 'chalk'
 import * as dotenv from 'dotenv'
-import { BuildEnv } from './types.js'
+import { BuildEnv, LogLevel } from './types.js'
 
 function assertEnv(name: string): string {
   const value = process.env[name]
@@ -16,6 +15,7 @@ type Config = {
   apiKey: string | undefined
   apiUrl: string
   env: 'local' | 'build' | 'ci'
+  logLevel: LogLevel
   projectId: string
 }
 
@@ -32,6 +32,7 @@ export function getConfig() {
   const apiKey = process.env['TAKESHAPE_API_KEY']
   const apiUrl = assertEnv('NEXT_PUBLIC_TAKESHAPE_API_URL')
   const projectId = getProjectId(apiUrl)
+  const logLevel = getLogLevel(process.env['TAKESHAPE_LOG_LEVEL'])
 
   if (!projectId) {
     throw new Error('NEXT_PUBLIC_TAKESHAPE_API_URL is invalid')
@@ -51,6 +52,7 @@ export function getConfig() {
     apiKey,
     apiUrl,
     env,
+    logLevel,
     projectId,
   }
 
@@ -123,9 +125,14 @@ function getProjectId(apiUrl: string) {
   return apiUrl.match(/project\/([a-z0-9-]+)/)?.[1]
 }
 
-export const logPrefix = `${chalk.cyan('takeshape')} -`
-
-export function logWithPrefix(msg: string) {
-  // eslint-disable-next-line no-console
-  console.log(`${logPrefix} ${msg}`)
+function getLogLevel(logLevel: string | undefined): LogLevel {
+  switch (logLevel) {
+    case 'error':
+      return 50
+    case 'debug':
+      return 20
+    case 'info':
+    default:
+      return 30
+  }
 }
