@@ -11,6 +11,7 @@ import { prepareEnv } from '../commands/prepareEnv.js'
 import { promoteBranch } from '../commands/promoteBranch.js'
 import { log } from '../lib/log.js'
 import { CliFlags } from '../lib/types.js'
+import { isInteractive } from '../lib/util.js'
 
 dotenv.config()
 dotenv.config({ path: '.env.local' })
@@ -50,6 +51,7 @@ const cli = meow(helpMessage, {
     },
     tty: {
       type: 'boolean',
+      default: isInteractive(),
     },
     productionOnly: {
       type: 'boolean',
