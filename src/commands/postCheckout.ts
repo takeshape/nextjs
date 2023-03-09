@@ -7,8 +7,6 @@ import { DEVELOPMENT } from '../lib/constants.js'
 import { log, logPrefix } from '../lib/log.js'
 import { getCommitInfo, isDefaultBranch } from '../lib/repo.js'
 
-const { apiKey, env, projectId } = getConfig()
-
 const questions = [
   {
     type: 'confirm',
@@ -20,6 +18,8 @@ const questions = [
 ]
 
 export function postCheckout() {
+  const { apiKey, env, projectId } = getConfig()
+
   if (!apiKey) {
     return
   }

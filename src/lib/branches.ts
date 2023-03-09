@@ -5,9 +5,8 @@ import { log } from './log.js'
 import { getCommitInfo, isDefaultBranch } from './repo.js'
 import { BranchWithUrl } from './types.js'
 
-const { apiKey, projectId, env } = getConfig()
-
 export async function getBranchForLocal(client: Client): Promise<BranchWithUrl | undefined> {
+  const { projectId, env } = getConfig()
   const { gitCommitRef } = await getCommitInfo(env)
 
   if (!gitCommitRef) {
@@ -27,6 +26,7 @@ export async function getBranchForLocal(client: Client): Promise<BranchWithUrl |
 }
 
 export async function tagBranchForBuild(client: Client): Promise<BranchWithUrl | undefined> {
+  const { projectId, env } = getConfig()
   const buildEnv = getBuildEnv(env)
   const { gitCommitRef, gitCommitSha } = await getCommitInfo(env)
 
@@ -62,6 +62,8 @@ export async function tagBranchForBuild(client: Client): Promise<BranchWithUrl |
 }
 
 export async function setProcessBranchUrl(): Promise<string | undefined> {
+  const { apiKey, env } = getConfig()
+
   if (!apiKey) {
     log.error('TAKESHAPE_API_KEY not set')
     return

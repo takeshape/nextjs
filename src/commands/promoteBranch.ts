@@ -9,10 +9,10 @@ import { log } from '../lib/log.js'
 import { getCommitInfo, isDefaultBranch } from '../lib/repo.js'
 import { CliFlags } from '../lib/types.js'
 
-const { apiKey, env, githubToken, projectId } = getConfig()
-
 export async function promoteBranch({ name, lookupPr, productionOnly }: CliFlags) {
   try {
+    const { apiKey, env, githubToken, projectId } = getConfig()
+
     const buildEnv = getBuildEnv(env)
 
     if (productionOnly && buildEnv !== 'production') {

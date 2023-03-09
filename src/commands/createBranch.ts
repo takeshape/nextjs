@@ -7,10 +7,10 @@ import { log } from '../lib/log.js'
 import { getCommitInfo, isDefaultBranch } from '../lib/repo.js'
 import { CliFlags } from '../lib/types.js'
 
-const { apiKey, env, projectId } = getConfig()
-
 export async function createBranch({ name }: CliFlags) {
   try {
+    const { apiKey, env, projectId } = getConfig()
+
     if (!apiKey) {
       log.error('TAKESHAPE_API_KEY not set')
       return
