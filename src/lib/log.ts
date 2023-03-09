@@ -5,7 +5,7 @@ export const logPrefix = `${chalk.cyan('takeshape')} -`
 
 export function logWithPrefix(...args: any[]) {
   // eslint-disable-next-line no-console
-  console.log(`${logPrefix} `, ...args)
+  console.log(`${logPrefix}`, ...args)
 }
 
 export class Log {
