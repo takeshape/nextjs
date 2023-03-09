@@ -1,16 +1,15 @@
 #!/usr/bin/env node
 
-import minimist, { ParsedArgs } from 'minimist'
-import { isDefaultBranch } from '../lib/branches.js'
 import { getClient } from '../lib/client.js'
 import { getConfig } from '../lib/config.js'
 import { DEVELOPMENT } from '../lib/constants.js'
 import { log } from '../lib/log.js'
-import { getHeadBranchName } from '../lib/repo.js'
+import { getHeadBranchName, isDefaultBranch } from '../lib/repo.js'
+import { CliFlags } from '../lib/types.js'
 
 const { apiKey, projectId } = getConfig()
 
-async function main({ name }: ParsedArgs) {
+export async function deleteBranch({ name }: CliFlags) {
   try {
     if (!apiKey) {
       log.error('TAKESHAPE_API_KEY not set')
@@ -31,24 +30,24 @@ async function main({ name }: ParsedArgs) {
     }
 
     if (await isDefaultBranch(branchName)) {
-      log.error('Default production branch already exists')
+      log.error(`Cannot delete the 'production' branch`)
       return
     }
 
-    log.info('Creating API branch...')
+    log.info('Deleting API branch...')
 
     const client = getClient({ apiKey })
 
-    const result = await client.createBranch({
+    const result = await client.deleteBranch({
       input: { projectId, environment: DEVELOPMENT, branchName },
     })
 
-    if (result?.branch) {
-      log.info(`Created the API branch '${result.branch.branchName}'`)
+    if (result?.deletedBranch) {
+      log.info(`Deleted the API branch '${result.deletedBranch.branchName}'`)
       return
     }
 
-    log.info('No API branches were created')
+    log.info('No API branches were deleted')
   } catch (error) {
     log.debug(error)
 
@@ -58,5 +57,3 @@ async function main({ name }: ParsedArgs) {
     }
   }
 }
-
-main(minimist(process.argv.slice(2)))

@@ -1,25 +1,20 @@
 import { Client, getClient, TagBranchMutationVariables } from './client.js'
-import { getBuildConfig, getCiConfig, getConfig } from './config.js'
+import { getBuildEnv, getConfig } from './config.js'
 import { DEVELOPMENT, PRODUCTION } from './constants.js'
 import { log } from './log.js'
-import { getDefaultBranches, getHeadBranchName } from './repo.js'
+import { getCommitInfo, isDefaultBranch } from './repo.js'
 import { BranchWithUrl } from './types.js'
 
 const { apiKey, projectId, env } = getConfig()
 
-export async function isDefaultBranch(branchName: string) {
-  const defaultBranchNames = await getDefaultBranches()
-  return defaultBranchNames.includes(branchName)
-}
-
 export async function getBranchForLocal(client: Client): Promise<BranchWithUrl | undefined> {
-  const headBranchName = await getHeadBranchName()
+  const { gitCommitRef } = await getCommitInfo(env)
 
-  if (!headBranchName) {
+  if (!gitCommitRef) {
     return
   }
 
-  if (await isDefaultBranch(headBranchName)) {
+  if (await isDefaultBranch(gitCommitRef)) {
     // Default branch, do not need a branch URL
     return
   }
@@ -27,12 +22,17 @@ export async function getBranchForLocal(client: Client): Promise<BranchWithUrl |
   return client.getBranch({
     projectId,
     environment: DEVELOPMENT,
-    branchName: headBranchName,
+    branchName: gitCommitRef,
   })
 }
 
 export async function tagBranchForBuild(client: Client): Promise<BranchWithUrl | undefined> {
-  const { buildEnv, gitCommitRef, gitCommitSha } = getBuildConfig()
+  const buildEnv = getBuildEnv(env)
+  const { gitCommitRef, gitCommitSha } = await getCommitInfo(env)
+
+  if (!gitCommitSha) {
+    return
+  }
 
   let variables: TagBranchMutationVariables
 
@@ -61,21 +61,6 @@ export async function tagBranchForBuild(client: Client): Promise<BranchWithUrl |
   return result?.branchVersion
 }
 
-export async function tagBranchForCi(client: Client): Promise<BranchWithUrl | undefined> {
-  const { gitCommitRef, gitCommitSha } = getCiConfig()
-
-  const result = await client.tagBranch({
-    input: {
-      projectId,
-      environment: DEVELOPMENT,
-      branchName: gitCommitRef,
-      tagName: gitCommitSha,
-    },
-  })
-
-  return result?.branchVersion
-}
-
 export async function setProcessBranchUrl(): Promise<string | undefined> {
   if (!apiKey) {
     log.error('TAKESHAPE_API_KEY not set')
@@ -88,22 +73,13 @@ export async function setProcessBranchUrl(): Promise<string | undefined> {
 
   let branch
 
-  if (env === 'build') {
+  if (env === 'local') {
+    branch = await getBranchForLocal(client)
+  } else {
     branch = await tagBranchForBuild(client)
     if (!branch) {
       log.info('Branch was not tagged. Review your config if this is unexpected.')
     }
-  }
-
-  if (env === 'ci') {
-    branch = await tagBranchForCi(client)
-    if (!branch) {
-      log.info('Branch was not tagged. Review your config if this is unexpected.')
-    }
-  }
-
-  if (env === 'local') {
-    branch = await getBranchForLocal(client)
   }
 
   if (branch) {

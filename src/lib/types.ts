@@ -25,6 +25,12 @@ export type BranchArgs = Branch & {
   projectId: string
 }
 
+export type Env = 'local' | 'vercel' | 'netlify' | 'github'
 export type BuildEnv = 'production' | 'preview' | 'development'
 
 export type LogLevel = 20 | 30 | 50
+
+export type CliFlags = {
+  name?: string
+  lookupPr?: boolean
+}

@@ -1,33 +1,56 @@
 #!/usr/bin/env node
 
-import minimist, { ParsedArgs } from 'minimist'
-import { isDefaultBranch } from '../lib/branches.js'
+import { Octokit } from 'octokit'
 import { getClient } from '../lib/client.js'
 import { getConfig } from '../lib/config.js'
 import { DEVELOPMENT, PRODUCTION } from '../lib/constants.js'
+import { getHeadRefFromCommitPullsList } from '../lib/github.js'
 import { log } from '../lib/log.js'
-import { getHeadBranchName } from '../lib/repo.js'
+import { getCommitInfo, isDefaultBranch } from '../lib/repo.js'
+import { CliFlags } from '../lib/types.js'
 
-const { apiKey, projectId } = getConfig()
+const { apiKey, env, githubToken, projectId } = getConfig()
 
-async function main({ name }: ParsedArgs) {
+export async function promoteBranch({ name, lookupPr }: CliFlags) {
   try {
     if (!apiKey) {
       log.error('TAKESHAPE_API_KEY not set')
       return
     }
 
-    const headBranchName = await getHeadBranchName()
+    const { gitCommitRef, gitCommitSha, gitRepoName, gitRepoOwner } = await getCommitInfo(env)
 
-    let branchName = name
+    let branchName: string
 
-    if (name) {
-      branchName = name
-    } else if (headBranchName) {
-      branchName = headBranchName
+    if (lookupPr) {
+      if (gitRepoOwner && gitRepoName && gitCommitSha) {
+        const octokit = new Octokit({ auth: githubToken })
+        const headRef = await getHeadRefFromCommitPullsList(
+          octokit,
+          gitRepoOwner,
+          gitRepoName,
+          gitCommitSha,
+        )
+
+        if (!headRef) {
+          log.error('Could not find a PR ref')
+          return
+        }
+
+        branchName = headRef
+      } else {
+        log.error('Insufficient info to find a PR ref')
+        return
+      }
     } else {
-      log.error(`A --name arg must be provided if not used in a repo`)
-      return
+      if (name) {
+        branchName = name
+      } else if (gitCommitRef) {
+        branchName = gitCommitRef
+      } else {
+        log.error(`A --name arg must be provided if not used in a repo`)
+        return
+      }
     }
 
     if (await isDefaultBranch(branchName)) {
@@ -79,5 +102,3 @@ async function main({ name }: ParsedArgs) {
     }
   }
 }
-
-main(minimist(process.argv.slice(2)))

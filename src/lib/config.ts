@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv'
-import { BuildEnv, LogLevel } from './types.js'
+import { BuildEnv, Env, LogLevel } from './types.js'
 
 function assertEnv(name: string): string {
   const value = process.env[name]
@@ -14,7 +14,8 @@ function assertEnv(name: string): string {
 type Config = {
   apiKey: string | undefined
   apiUrl: string
-  env: 'local' | 'build' | 'ci'
+  env: Env
+  githubToken: string | undefined
   logLevel: LogLevel
   projectId: string
 }
@@ -33,6 +34,7 @@ export function getConfig() {
   const apiUrl = assertEnv('NEXT_PUBLIC_TAKESHAPE_API_URL')
   const projectId = getProjectId(apiUrl)
   const logLevel = getLogLevel(process.env['TAKESHAPE_LOG_LEVEL'])
+  const githubToken = process.env['GITHUB_TOKEN']
 
   if (!projectId) {
     throw new Error('NEXT_PUBLIC_TAKESHAPE_API_URL is invalid')
@@ -40,18 +42,23 @@ export function getConfig() {
 
   let env: Config['env'] = 'local'
 
-  if (process.env['VERCEL_ENV'] || process.env['NETLIFY']) {
-    env = 'build'
+  if (process.env['NETLIFY']) {
+    env = 'vercel'
+  }
+
+  if (process.env['VERCEL_ENV']) {
+    env = 'netlify'
   }
 
   if (process.env['GITHUB_ACTION']) {
-    env = 'ci'
+    env = 'github'
   }
 
   config = {
     apiKey,
     apiUrl,
     env,
+    githubToken,
     logLevel,
     projectId,
   }
@@ -59,24 +66,12 @@ export function getConfig() {
   return config
 }
 
-type BuildConfig = {
-  service: 'vercel' | 'netlify'
-  buildEnv: BuildEnv
-  gitCommitRef: string
-  gitCommitSha: string
-}
-
-export function getBuildConfig(): BuildConfig {
-  if (process.env['VERCEL_ENV']) {
-    return {
-      service: 'vercel',
-      buildEnv: process.env['VERCEL_ENV'] as BuildEnv,
-      gitCommitRef: assertEnv('VERCEL_GIT_COMMIT_REF'),
-      gitCommitSha: assertEnv('VERCEL_GIT_COMMIT_SHA'),
-    }
+export function getBuildEnv(env: Env): BuildEnv | undefined {
+  if (env === 'vercel') {
+    return process.env['VERCEL_ENV'] as BuildEnv
   }
 
-  if (process.env['NETLIFY']) {
+  if (env === 'netlify') {
     let buildEnv: BuildEnv
 
     switch (process.env['CONTEXT']) {
@@ -92,33 +87,10 @@ export function getBuildConfig(): BuildConfig {
         buildEnv = 'production'
     }
 
-    return {
-      service: 'netlify',
-      buildEnv,
-      gitCommitRef: assertEnv('HEAD'),
-      gitCommitSha: assertEnv('COMMIT_REF'),
-    }
+    return buildEnv
   }
 
-  throw new Error(`Can only be called in 'build' environments`)
-}
-
-type CiConfig = {
-  service: 'github'
-  gitCommitRef: string
-  gitCommitSha: string
-}
-
-export function getCiConfig(): CiConfig {
-  if (process.env['GITHUB_ACTION']) {
-    return {
-      service: 'github',
-      gitCommitRef: assertEnv('GITHUB_REF_NAME'),
-      gitCommitSha: assertEnv('GITHUB_SHA'),
-    }
-  }
-
-  throw new Error(`Can only be called in 'ci' environments`)
+  return
 }
 
 function getProjectId(apiUrl: string) {
