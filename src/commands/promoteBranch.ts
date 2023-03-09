@@ -30,7 +30,7 @@ export async function promoteBranch({ name, lookupPr, productionOnly }: CliFlags
     let branchName: string
 
     if (lookupPr) {
-      log.debug('Using lookupPr branch', { gitCommitRef, gitCommitSha, gitRepoName, gitRepoOwner })
+      log.debug('Using --lookup-pr', { gitCommitRef, gitCommitSha, gitRepoName, gitRepoOwner })
 
       if (gitRepoOwner && gitRepoName && gitCommitSha) {
         const octokit = new Octokit({ auth: githubToken })
