@@ -50,24 +50,21 @@ const questions = [
   },
 ]
 
-export function prepareEnv() {
-  inquirer.prompt(questions).then(async (answers) => {
-    if (answers['overwriteEnvFile'] === true || answers['overwriteEnvFile'] === undefined) {
-      log.info('Creating new .env file')
-      await fsp.copyFile(files.env.src, files.env.dest)
-    }
+export async function prepareEnv() {
+  const answers = await inquirer.prompt(questions)
 
-    if (answers['overwriteEnvTestFile'] === true || answers['overwriteEnvTestFile'] === undefined) {
-      log.info('Creating new .env.test file')
-      await fsp.copyFile(files.envTest.src, files.envTest.dest)
-    }
+  if (answers['overwriteEnvFile'] === true || answers['overwriteEnvFile'] === undefined) {
+    log.info('Creating new .env file')
+    await fsp.copyFile(files.env.src, files.env.dest)
+  }
 
-    if (
-      answers['overwriteEnvLocalFile'] === true ||
-      answers['overwriteEnvLocalFile'] === undefined
-    ) {
-      log.info('Creating new .env.local file')
-      await fsp.copyFile(files.envLocal.src, files.envLocal.dest)
-    }
-  })
+  if (answers['overwriteEnvTestFile'] === true || answers['overwriteEnvTestFile'] === undefined) {
+    log.info('Creating new .env.test file')
+    await fsp.copyFile(files.envTest.src, files.envTest.dest)
+  }
+
+  if (answers['overwriteEnvLocalFile'] === true || answers['overwriteEnvLocalFile'] === undefined) {
+    log.info('Creating new .env.local file')
+    await fsp.copyFile(files.envLocal.src, files.envLocal.dest)
+  }
 }

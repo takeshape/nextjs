@@ -12,24 +12,28 @@ export async function createBranch({ name }: CliFlags) {
     const { apiKey, env, projectId } = getConfig()
 
     if (!apiKey) {
-      log.error('TAKESHAPE_API_KEY not set')
+      log.error('No API key found')
       return
     }
 
     const { gitCommitRef } = await getCommitInfo(env)
 
-    let branchName = name
+    let branchName: string | undefined
 
     if (name) {
+      log.debug('Using user-provided --name')
       branchName = name
     } else if (gitCommitRef) {
+      log.debug('Using found gitCommitRef', { gitCommitRef })
       branchName = gitCommitRef
     } else {
       log.error(`A --name arg must be provided if not used in a repo`)
       return
     }
 
-    if (await isDefaultBranch(branchName)) {
+    log.debug('Proceding with branchName:', branchName)
+
+    if (isDefaultBranch(branchName)) {
       log.error('Default production branch already exists')
       return
     }

@@ -27,11 +27,11 @@ export async function promoteBranch({ name, lookupPr, productionOnly }: CliFlags
 
     const { gitCommitRef, gitCommitSha, gitRepoName, gitRepoOwner } = await getCommitInfo(env)
 
-    log.debug({ gitCommitRef, gitRepoOwner, gitRepoName, gitCommitSha })
-
     let branchName: string
 
     if (lookupPr) {
+      log.debug('Using lookupPr branch', { gitCommitRef, gitCommitSha, gitRepoName, gitRepoOwner })
+
       if (gitRepoOwner && gitRepoName && gitCommitSha) {
         const octokit = new Octokit({ auth: githubToken })
         const headRef = await getHeadRefFromCommitPullsList(
@@ -40,8 +40,6 @@ export async function promoteBranch({ name, lookupPr, productionOnly }: CliFlags
           gitRepoName,
           gitCommitSha,
         )
-
-        log.debug({ headRef })
 
         if (!headRef) {
           log.error('Could not find a PR ref')
@@ -55,8 +53,10 @@ export async function promoteBranch({ name, lookupPr, productionOnly }: CliFlags
       }
     } else {
       if (name) {
+        log.debug('Using user-provided --name')
         branchName = name
       } else if (gitCommitRef) {
+        log.debug('Using found gitCommitRef', { gitCommitRef })
         branchName = gitCommitRef
       } else {
         log.error(`A --name arg must be provided if not used in a repo`)
@@ -64,7 +64,9 @@ export async function promoteBranch({ name, lookupPr, productionOnly }: CliFlags
       }
     }
 
-    if (await isDefaultBranch(branchName)) {
+    log.debug('Proceding with branchName:', branchName)
+
+    if (isDefaultBranch(branchName)) {
       log.error('Cannot promote the default branch')
       return
     }
@@ -73,9 +75,9 @@ export async function promoteBranch({ name, lookupPr, productionOnly }: CliFlags
 
     const client = getClient({ apiKey })
 
-    const branch = await client.getBranch({ projectId, environment: PRODUCTION })
+    const productionBranch = await client.getBranch({ projectId, environment: PRODUCTION })
 
-    if (!branch) {
+    if (!productionBranch) {
       log.error('Cannot promote the branch, could not get latest version')
       return
     }
@@ -93,7 +95,7 @@ export async function promoteBranch({ name, lookupPr, productionOnly }: CliFlags
         },
         target: {
           environment: PRODUCTION,
-          version: branch.latestVersion.version,
+          version: productionBranch.latestVersion.version,
         },
       },
     })

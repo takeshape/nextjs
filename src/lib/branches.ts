@@ -13,7 +13,7 @@ export async function getBranchForLocal(client: Client): Promise<BranchWithUrl |
     return
   }
 
-  if (await isDefaultBranch(gitCommitRef)) {
+  if (isDefaultBranch(gitCommitRef)) {
     // Default branch, do not need a branch URL
     return
   }

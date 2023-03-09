@@ -160,6 +160,7 @@ export function getClient({ apiKey }: ClientConfig) {
           getBranchQuery,
           variables,
         )
+        log.debug(result)
         return result
       } catch (error) {
         log.debug(error)
@@ -176,6 +177,7 @@ export function getClient({ apiKey }: ClientConfig) {
           TagBranchMutationPayload,
           TagBranchMutationVariables
         >(tagBranchMutation, variables)
+        log.debug(result)
         return result
       } catch (error) {
         log.debug(error)
@@ -192,6 +194,7 @@ export function getClient({ apiKey }: ClientConfig) {
           CreateBranchMutationPayload,
           CreateBranchMutationVariables
         >(createBranchMutation, variables)
+        log.debug(result)
         return result
       } catch (error) {
         log.debug(error)
@@ -208,6 +211,7 @@ export function getClient({ apiKey }: ClientConfig) {
           DeleteBranchMutationPayload,
           DeleteBranchMutationVariables
         >(deleteBranchMutation, variables)
+        log.debug(result)
         return result
       } catch (error) {
         log.debug(error)
@@ -224,6 +228,7 @@ export function getClient({ apiKey }: ClientConfig) {
           MergeBranchMutationPayload,
           MergeBranchMutationVariables
         >(mergeBranchMutation, variables)
+        log.debug(result)
         return result
       } catch (error) {
         log.debug(error)

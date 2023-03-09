@@ -11,9 +11,8 @@ function getDefaultBranches() {
   return DEFAULT_BRANCH_NAMES
 }
 
-export async function isDefaultBranch(branchName: string) {
-  const defaultBranchNames = await getDefaultBranches()
-  return defaultBranchNames.includes(branchName)
+export function isDefaultBranch(branchName: string) {
+  return getDefaultBranches().includes(branchName)
 }
 
 function getRepoInfoFromUrl(repoUrl: string) {
@@ -108,4 +107,18 @@ export async function getCommitInfo(env: Env): Promise<CommitInfo> {
     gitRepoName,
     gitRepoOwner,
   }
+}
+
+export async function getMergedBranchName() {
+  const git = simpleGit()
+  const isRepo = await git.checkIsRepo()
+
+  if (!isRepo) {
+    return
+  }
+
+  // e.g., 5d16682 HEAD@{0}: merge my_branch: Fast-forward
+  const reflogMessage = await git.raw(['reflog', '-1'])
+  // e.g., my_branch
+  return reflogMessage.split(' ')[3]?.replace(/:$/, '')
 }

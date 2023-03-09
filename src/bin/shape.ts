@@ -5,7 +5,8 @@ import meow from 'meow'
 import { createBranch } from '../commands/createBranch.js'
 import { deleteBranch } from '../commands/deleteBranch.js'
 import { getBranchUrl } from '../commands/getBranchUrl.js'
-import { postCheckout } from '../commands/postCheckout.js'
+import { postCheckoutHook } from '../commands/postCheckoutHook.js'
+import { postMergeHook } from '../commands/postMergeHook.js'
 import { prepareEnv } from '../commands/prepareEnv.js'
 import { promoteBranch } from '../commands/promoteBranch.js'
 import { log } from '../lib/log.js'
@@ -24,7 +25,8 @@ const cli = meow(
     promote-branch
     delete-branch
     get-branch-url
-    post-checkout
+    post-checkout-hook
+    post-merge-hook
     prepare-env
 
   Flags
@@ -65,8 +67,11 @@ function main(command: string | undefined, flags: CliFlags) {
     case 'get-branch-url':
       getBranchUrl()
       return
-    case 'post-checkout':
-      postCheckout()
+    case 'post-checkout-hook':
+      postCheckoutHook(flags)
+      return
+    case 'post-merge-hook':
+      postMergeHook(flags)
       return
     case 'prepare-env':
       prepareEnv()

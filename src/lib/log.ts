@@ -13,7 +13,7 @@ export class Log {
     const { logLevel } = getConfig()
 
     if (logLevel <= 20) {
-      return logWithPrefix(...args)
+      logWithPrefix('[DEBUG]', ...args)
     }
   }
 
@@ -21,7 +21,7 @@ export class Log {
     const { logLevel } = getConfig()
 
     if (logLevel <= 30) {
-      return logWithPrefix(...args)
+      logWithPrefix(...args)
     }
   }
 
@@ -29,7 +29,7 @@ export class Log {
     const { logLevel } = getConfig()
 
     if (logLevel <= 50) {
-      return logWithPrefix(...args)
+      logWithPrefix('[ERROR]', ...args)
     }
   }
 }
