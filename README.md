@@ -20,15 +20,19 @@ This package expects the following variables to be defined in the environment:
 
 ## Usage
 
-The following binaries are available for use in your npm scripts:
+You can use the `shape` binary with the following commands:
 
-- `takeshape-get-branch-url` - Get an API branch URL
-- `takeshape-post-checkout` - Run the git `post-checkout` branch creation prompt
-- `takeshape-prepare-env` - Prepare various `.env` files using `-example` source files in the repo.
+- `shape get-branch-url` - Get an API branch URL
+- `shape post-checkout-hook` - Run the git `post-checkout` hook branch creation prompt
+- `shape post-merge-hook` - Run the git `post-merge` hook branch promote prompt
+- `shape create-branch` - Create a branch using `--name` or repo lookup
+- `shape delete-branch` - Delete a branch using `--name` or repo lookup
+- `shape promote-branch` - Promote a branch using `--name`, repo lookup, or the `--lookup-pr` flag which will search GitHub for a PR that matches the sha.
+- `shape prepare-env` - Prepare various `.env` files using `-example` source files in the repo.
 
 Some functions are also exported:
 
-- `setProcessBranchUrl` - Set `NEXT_PUBLIC_BRANCH_TAKESHAPE_API_URL` on `process.env`.
+- `setProcessBranchUrl` - Set a var on `process.env` with the branch URL. Defaults to `NEXT_PUBLIC_BRANCH_TAKESHAPE_API_URL`.
 
 ## Releases
 

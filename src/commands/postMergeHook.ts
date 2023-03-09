@@ -13,6 +13,11 @@ export async function postMergeHook({ name }: CliFlags) {
   try {
     const { apiKey, projectId } = getConfig()
 
+    if (!projectId) {
+      log.error('No projectId found, check your API url')
+      return
+    }
+
     if (!apiKey) {
       log.error('No API key found')
       return

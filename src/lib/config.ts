@@ -1,15 +1,5 @@
 import { BuildEnv, Env, LogLevel } from './types.js'
 
-function assertEnv(name: string): string {
-  const value = process.env[name]
-
-  if (value === undefined) {
-    throw new Error(`${name} is not defined`)
-  }
-
-  return value
-}
-
 function getProjectId(apiUrl: string) {
   return apiUrl.match(/project\/([a-z0-9-]+)/)?.[1]
 }
@@ -28,11 +18,11 @@ function getLogLevel(logLevel: string | undefined): LogLevel {
 
 type Config = {
   apiKey: string | undefined
-  apiUrl: string
+  apiUrl: string | undefined
   env: Env
   githubToken: string | undefined
   logLevel: LogLevel
-  projectId: string
+  projectId: string | undefined
 }
 
 let config: Config
@@ -43,12 +33,12 @@ export function getConfig() {
   }
 
   const apiKey = process.env['API_KEY'] ?? process.env['TAKESHAPE_API_KEY']
-  const apiUrl = process.env['API_URL'] ?? assertEnv('NEXT_PUBLIC_TAKESHAPE_API_URL')
-  const projectId = getProjectId(apiUrl)
+  const apiUrl = process.env['API_URL'] ?? process.env['NEXT_PUBLIC_TAKESHAPE_API_URL']
+  const projectId = apiUrl && getProjectId(apiUrl)
   const logLevel = getLogLevel(process.env['LOG_LEVEL'])
   const githubToken = process.env['GITHUB_TOKEN']
 
-  if (!projectId) {
+  if (apiUrl && !projectId) {
     throw new Error('API url is invalid')
   }
 

@@ -11,9 +11,14 @@ export async function deleteBranch({ name }: CliFlags) {
   try {
     const { apiKey, env, projectId } = getConfig()
 
+    if (!projectId) {
+      log.error('No projectId found, check your API url')
+      process.exit(1)
+    }
+
     if (!apiKey) {
       log.error('No API key found')
-      return
+      process.exit(1)
     }
 
     const { gitCommitRef } = await getCommitInfo(env)
@@ -28,13 +33,13 @@ export async function deleteBranch({ name }: CliFlags) {
       branchName = gitCommitRef
     } else {
       log.error(`A --name arg must be provided if not used in a repo`)
-      return
+      process.exit(1)
     }
 
     log.debug('Proceding with branchName:', branchName)
 
     if (isDefaultBranch(branchName)) {
-      log.error(`Cannot delete the 'production' branch`)
+      log.info(`Cannot delete the 'production' branch`)
       return
     }
 
@@ -57,7 +62,8 @@ export async function deleteBranch({ name }: CliFlags) {
 
     if (error instanceof Error) {
       log.error(error.message)
-      return
     }
+
+    process.exit(1)
   }
 }

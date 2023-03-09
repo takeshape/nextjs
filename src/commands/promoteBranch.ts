@@ -13,6 +13,11 @@ export async function promoteBranch({ name, lookupPr, productionOnly }: CliFlags
   try {
     const { apiKey, env, githubToken, projectId } = getConfig()
 
+    if (!projectId) {
+      log.error('No projectId found, check your API url')
+      process.exit(1)
+    }
+
     const buildEnv = getBuildEnv(env)
 
     if (productionOnly && buildEnv !== 'production') {
@@ -21,8 +26,8 @@ export async function promoteBranch({ name, lookupPr, productionOnly }: CliFlags
     }
 
     if (!apiKey) {
-      log.error('TAKESHAPE_API_KEY not set')
-      return
+      log.error('No API key found')
+      process.exit(1)
     }
 
     const { gitCommitRef, gitCommitSha, gitRepoName, gitRepoOwner } = await getCommitInfo(env)
@@ -60,14 +65,14 @@ export async function promoteBranch({ name, lookupPr, productionOnly }: CliFlags
         branchName = gitCommitRef
       } else {
         log.error(`A --name arg must be provided if not used in a repo`)
-        return
+        process.exit(1)
       }
     }
 
     log.debug('Proceding with branchName:', branchName)
 
     if (isDefaultBranch(branchName)) {
-      log.error('Cannot promote the default branch')
+      log.info('Cannot promote the default branch')
       return
     }
 
@@ -79,7 +84,7 @@ export async function promoteBranch({ name, lookupPr, productionOnly }: CliFlags
 
     if (!productionBranch) {
       log.error('Cannot promote the branch, could not get latest version')
-      return
+      process.exit(1)
     }
 
     const result = await client.mergeBranch({
@@ -111,7 +116,8 @@ export async function promoteBranch({ name, lookupPr, productionOnly }: CliFlags
 
     if (error instanceof Error) {
       log.error(error.message)
-      return
     }
+
+    process.exit(1)
   }
 }

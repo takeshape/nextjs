@@ -6,7 +6,7 @@ import { log } from './log.js'
 export async function setProcessBranchUrl(
   { envVar } = { envVar: 'NEXT_PUBLIC_BRANCH_TAKESHAPE_API_URL' },
 ): Promise<string | undefined> {
-  const { apiKey, env } = getConfig()
+  const { apiKey, apiUrl, env } = getConfig()
 
   if (!apiKey) {
     log.error('No API key found')
@@ -30,13 +30,19 @@ export async function setProcessBranchUrl(
     }
   }
 
+  let branchUrl: string | undefined
+
   if (branch) {
-    log.info(`Found API branch '${branch.branchName}'`)
-    process.env[envVar] = branch.graphqlUrl
-    return branch.graphqlUrl
+    log.info(`Setting API URL for branch '${branch.branchName}'`)
+    branchUrl = branch.graphqlUrl
+  } else {
+    log.info(`Using default API URL`)
+    branchUrl = apiUrl
   }
 
-  log.info(`Using default 'production' API branch`)
+  if (branchUrl) {
+    process.env[envVar] = branchUrl
+  }
 
-  return
+  return branchUrl
 }

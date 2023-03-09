@@ -15,8 +15,7 @@ import { CliFlags } from '../lib/types.js'
 dotenv.config()
 dotenv.config({ path: '.env.local' })
 
-const cli = meow(
-  `
+const helpMessage = `
   Usage
     $ shape <command> <flags>
 
@@ -30,28 +29,29 @@ const cli = meow(
     prepare-env
 
   Flags
-    --name             A branch name. create-branch, delete-branch, promote-branch
+    --name             A branch name. Works with most commands and will override any branch-finding.
     --lookup-pr        Use a SHA to lookup a branch name. promote-branch only.
     --production-only  Only run the command in a production environment. promote-branch only.
 
   Examples
     $ shape create-branch --name my_branch
-`,
-  {
-    importMeta: import.meta,
-    flags: {
-      name: {
-        type: 'string',
-      },
-      lookupPr: {
-        type: 'boolean',
-      },
-      productionOnly: {
-        type: 'boolean',
-      },
+    $ shape promote-branch --lookup-pr --production-only
+`
+
+const cli = meow(helpMessage, {
+  importMeta: import.meta,
+  flags: {
+    name: {
+      type: 'string',
+    },
+    lookupPr: {
+      type: 'boolean',
+    },
+    productionOnly: {
+      type: 'boolean',
     },
   },
-)
+})
 
 function main(command: string | undefined, flags: CliFlags) {
   switch (command) {

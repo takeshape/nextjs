@@ -1,5 +1,9 @@
 #!/usr/bin/env node
 
+/**
+ * This is a deliberately quiet command, suitable for setting an export ENV_VAR.
+ */
+
 import { getBranchForLocal, tagBranchForBuild } from '../lib/branches.js'
 import { getClient } from '../lib/client.js'
 import { getConfig } from '../lib/config.js'
@@ -8,7 +12,7 @@ import { BranchWithUrl } from '../lib/types.js'
 
 export async function getBranchUrl() {
   try {
-    const { apiKey, env } = getConfig()
+    const { apiKey, apiUrl, env } = getConfig()
 
     if (!apiKey) {
       return
@@ -24,10 +28,8 @@ export async function getBranchUrl() {
       branch = await tagBranchForBuild(client)
     }
 
-    if (branch) {
-      // eslint-disable-next-line no-console
-      console.log(branch.graphqlUrl)
-    }
+    // eslint-disable-next-line no-console
+    console.log(branch?.graphqlUrl ?? apiUrl)
   } catch (error) {
     log.debug(error)
   }

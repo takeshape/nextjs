@@ -23,6 +23,11 @@ export async function postCheckoutHook({ name }: CliFlags) {
   try {
     const { apiKey, env, projectId } = getConfig()
 
+    if (!projectId) {
+      log.error('No projectId found, check your API url')
+      return
+    }
+
     if (!apiKey) {
       log.error('No API key found')
       return
