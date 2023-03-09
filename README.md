@@ -3,6 +3,14 @@
 Tools primarily for working with Next.js based projects in build and CI environments using Vercel, Netlify and GitHub.
 Supports [penny](https://github.com/takeshape/penny).
 
+## Installation
+
+You should primarily use this package installed in a project and then aliased via npm scripts.
+
+```sh
+$ npm install @takeshape/shape-tools --save-dev
+```
+
 ## Requirements
 
 This package expects the following variables to be defined in the environment:
@@ -17,6 +25,8 @@ This package expects the following variables to be defined in the environment:
 - `DEFAULT_BRANCH` - Set an alternate default branch name. Otherwise `master` and `main` will both be checked.
 - `GITHUB_TOKEN` - Provide a GitHub personal access token for accessing PR information from the GitHub API. Requires
   access to the repo you're working with and permissions sufficient to list PR issues.
+- `NO_TTY_SHOULD_CREATE_BRANCH` - A flag setting the create branch behavior in non-TTY environments, like the VSCode git tools. By default this is `true`.
+- `NO_TTY_SHOULD_MERGE_BRANCH` - A flag setting the merge branch behavior in non-TTY environments. By default this is `true`.
 
 ## Usage
 
