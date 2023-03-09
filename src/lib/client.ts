@@ -156,11 +156,15 @@ export function getClient({ apiKey }: ClientConfig) {
       }
 
       try {
+        log.debug('getBranch', { variables })
+
         const { result } = await client.request<GetBranchQueryPayload, BranchArgs>(
           getBranchQuery,
           variables,
         )
-        log.debug(result)
+
+        log.debug('getBranch', { result })
+
         return result
       } catch (error) {
         log.debug(error)
@@ -173,11 +177,12 @@ export function getClient({ apiKey }: ClientConfig) {
       }
 
       try {
+        log.debug('tagBranch', { variables })
         const { result } = await client.request<
           TagBranchMutationPayload,
           TagBranchMutationVariables
         >(tagBranchMutation, variables)
-        log.debug(result)
+        log.debug('tagBranch', { result })
         return result
       } catch (error) {
         log.debug(error)
@@ -190,11 +195,15 @@ export function getClient({ apiKey }: ClientConfig) {
       }
 
       try {
+        log.debug('createBranch', { variables })
+
         const { result } = await client.request<
           CreateBranchMutationPayload,
           CreateBranchMutationVariables
         >(createBranchMutation, variables)
-        log.debug(result)
+
+        log.debug('createBranch', { result })
+
         return result
       } catch (error) {
         log.debug(error)
@@ -207,11 +216,15 @@ export function getClient({ apiKey }: ClientConfig) {
       }
 
       try {
+        log.debug('deleteBranch', { variables })
+
         const { result } = await client.request<
           DeleteBranchMutationPayload,
           DeleteBranchMutationVariables
         >(deleteBranchMutation, variables)
-        log.debug(result)
+
+        log.debug('deleteBranch', { result })
+
         return result
       } catch (error) {
         log.debug(error)
@@ -224,11 +237,15 @@ export function getClient({ apiKey }: ClientConfig) {
       }
 
       try {
+        log.debug('mergeBranch', { variables })
+
         const { result } = await client.request<
           MergeBranchMutationPayload,
           MergeBranchMutationVariables
         >(mergeBranchMutation, variables)
-        log.debug(result)
+
+        log.debug('mergeBranch', { result })
+
         return result
       } catch (error) {
         log.debug(error)

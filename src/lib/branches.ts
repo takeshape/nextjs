@@ -65,7 +65,15 @@ export async function tagBranchForBuild(client: Client): Promise<BranchWithUrl |
     }
   }
 
-  const result = await client.tagBranch(variables)
+  try {
+    const result = await client.tagBranch(variables)
+    return result?.branchVersion
+  } catch (error) {
+    if (error instanceof Error && error.message === 'Could not create tag — branch not found') {
+      // Swallow these, there won't always be branches and this is a noop
+      return
+    }
 
-  return result?.branchVersion
+    throw error
+  }
 }
