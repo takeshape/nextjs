@@ -28,7 +28,7 @@ export function postCheckout() {
     return
   }
 
-  inquirer.prompt(questions).then(async ({ shouldCreateBranch }: Questions) => {
+  inquirer.prompt(questions).then(async ({ shouldCreateBranch }) => {
     if (shouldCreateBranch) {
       try {
         const client = getClient({ apiKey })
