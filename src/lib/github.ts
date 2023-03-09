@@ -1,4 +1,5 @@
 import { Octokit } from 'octokit'
+import { log } from './log.js'
 
 export async function getHeadRefFromCommitPullsList(
   octokit: Octokit,
@@ -11,6 +12,8 @@ export async function getHeadRefFromCommitPullsList(
     repo,
     commit_sha: commitSha,
   })
+
+  log.debug(JSON.stringify(commitPullsList, null, 2))
 
   const commitPull = commitPullsList.data?.[0]
 

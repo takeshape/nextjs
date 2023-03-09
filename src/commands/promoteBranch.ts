@@ -41,6 +41,8 @@ export async function promoteBranch({ name, lookupPr, productionOnly }: CliFlags
           gitCommitSha,
         )
 
+        log.debug({ headRef })
+
         if (!headRef) {
           log.error('Could not find a PR ref')
           return
