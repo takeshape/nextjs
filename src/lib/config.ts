@@ -1,4 +1,3 @@
-import * as dotenv from 'dotenv'
 import { BuildEnv, Env, LogLevel } from './types.js'
 
 function assertEnv(name: string): string {
@@ -9,6 +8,22 @@ function assertEnv(name: string): string {
   }
 
   return value
+}
+
+function getProjectId(apiUrl: string) {
+  return apiUrl.match(/project\/([a-z0-9-]+)/)?.[1]
+}
+
+function getLogLevel(logLevel: string | undefined): LogLevel {
+  switch (logLevel) {
+    case 'error':
+      return 50
+    case 'debug':
+      return 20
+    case 'info':
+    default:
+      return 30
+  }
 }
 
 type Config = {
@@ -27,17 +42,14 @@ export function getConfig() {
     return config
   }
 
-  dotenv.config()
-  dotenv.config({ path: '.env.local' })
-
-  const apiKey = process.env['TAKESHAPE_API_KEY']
-  const apiUrl = assertEnv('NEXT_PUBLIC_TAKESHAPE_API_URL')
+  const apiKey = process.env['API_KEY'] ?? process.env['TAKESHAPE_API_KEY']
+  const apiUrl = process.env['API_URL'] ?? assertEnv('NEXT_PUBLIC_TAKESHAPE_API_URL')
   const projectId = getProjectId(apiUrl)
-  const logLevel = getLogLevel(process.env['TAKESHAPE_LOG_LEVEL'])
+  const logLevel = getLogLevel(process.env['LOG_LEVEL'])
   const githubToken = process.env['GITHUB_TOKEN']
 
   if (!projectId) {
-    throw new Error('NEXT_PUBLIC_TAKESHAPE_API_URL is invalid')
+    throw new Error('API url is invalid')
   }
 
   let env: Config['env'] = 'local'
@@ -91,20 +103,4 @@ export function getBuildEnv(env: Env): BuildEnv | undefined {
   }
 
   return
-}
-
-function getProjectId(apiUrl: string) {
-  return apiUrl.match(/project\/([a-z0-9-]+)/)?.[1]
-}
-
-function getLogLevel(logLevel: string | undefined): LogLevel {
-  switch (logLevel) {
-    case 'error':
-      return 50
-    case 'debug':
-      return 20
-    case 'info':
-    default:
-      return 30
-  }
 }

@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import * as dotenv from 'dotenv'
 import meow from 'meow'
 import { createBranch } from '../commands/createBranch.js'
 import { deleteBranch } from '../commands/deleteBranch.js'
@@ -9,6 +10,9 @@ import { prepareEnv } from '../commands/prepareEnv.js'
 import { promoteBranch } from '../commands/promoteBranch.js'
 import { log } from '../lib/log.js'
 import { CliFlags } from '../lib/types.js'
+
+dotenv.config()
+dotenv.config({ path: '.env.local' })
 
 const cli = meow(
   `

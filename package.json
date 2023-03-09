@@ -1,12 +1,12 @@
 {
-  "name": "@takeshape/nextjs",
+  "name": "@takeshape/shape-tools",
   "version": "0.5.4",
   "keywords": [
     "takeshape",
     "nextjs",
     "utils"
   ],
-  "repository": "takeshape/nextjs",
+  "repository": "takeshape/shape-tools",
   "type": "module",
   "exports": {
     ".": "./dist/index.js"
