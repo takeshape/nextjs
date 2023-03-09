@@ -42,11 +42,11 @@ export function getConfig() {
 
   let env: Config['env'] = 'local'
 
-  if (process.env['NETLIFY']) {
+  if (process.env['VERCEL_ENV']) {
     env = 'vercel'
   }
 
-  if (process.env['VERCEL_ENV']) {
+  if (process.env['NETLIFY']) {
     env = 'netlify'
   }
 
