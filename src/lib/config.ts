@@ -16,12 +16,18 @@ function getLogLevel(logLevel: string | undefined): LogLevel {
   }
 }
 
+function toBoolean(envVar: string) {
+  return envVar === 'true' || envVar === '1'
+}
+
 type Config = {
   apiKey: string | undefined
   apiUrl: string | undefined
   env: Env
   githubToken: string | undefined
   logLevel: LogLevel
+  noTtyShouldCreateBranch: boolean
+  noTtyShouldPromoteBranch: boolean
   projectId: string | undefined
 }
 
@@ -37,6 +43,14 @@ export function getConfig() {
   const projectId = apiUrl && getProjectId(apiUrl)
   const logLevel = getLogLevel(process.env['LOG_LEVEL'])
   const githubToken = process.env['GITHUB_TOKEN']
+
+  const rawNoTtyShouldCreateBranch = process.env['NO_TTY_SHOULD_CREATE_BRANCH']
+  const noTtyShouldCreateBranch =
+    rawNoTtyShouldCreateBranch === undefined ? true : toBoolean(rawNoTtyShouldCreateBranch)
+
+  const rawNoTtyShouldPromoteBranch = process.env['NO_TTY_SHOULD_PROMOTE_BRANCH']
+  const noTtyShouldPromoteBranch =
+    rawNoTtyShouldPromoteBranch === undefined ? true : toBoolean(rawNoTtyShouldPromoteBranch)
 
   if (apiUrl && !projectId) {
     throw new Error('API url is invalid')
@@ -62,6 +76,8 @@ export function getConfig() {
     env,
     githubToken,
     logLevel,
+    noTtyShouldCreateBranch,
+    noTtyShouldPromoteBranch,
     projectId,
   }
 

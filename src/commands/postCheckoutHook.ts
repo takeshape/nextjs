@@ -9,19 +9,9 @@ import { getCommitInfo, isDefaultBranch } from '../lib/repo.js'
 import { CliFlags } from '../lib/types.js'
 import { isInteractive } from '../lib/util.js'
 
-const questions = [
-  {
-    type: 'confirm',
-    prefix: logPrefix,
-    name: 'shouldCreateBranch',
-    message: 'Would you like to create a new API branch?',
-    default: true,
-  },
-]
-
 export async function postCheckoutHook({ name }: CliFlags) {
   try {
-    const { apiKey, env, projectId } = getConfig()
+    const { apiKey, env, noTtyShouldCreateBranch, projectId } = getConfig()
 
     if (!projectId) {
       log.error('No projectId found, check your API url')
@@ -33,12 +23,21 @@ export async function postCheckoutHook({ name }: CliFlags) {
       return
     }
 
-    if (!isInteractive()) {
-      log.debug('Non-interactive shell detected')
-      return
-    }
+    let shouldCreateBranch = noTtyShouldCreateBranch
 
-    const { shouldCreateBranch } = await inquirer.prompt(questions)
+    if (isInteractive()) {
+      log.debug('Interactive shell detected, prompting user')
+      const answers = await inquirer.prompt([
+        {
+          type: 'confirm',
+          prefix: logPrefix,
+          name: 'shouldCreateBranch',
+          message: 'Would you like to create a new API branch?',
+          default: true,
+        },
+      ])
+      shouldCreateBranch = answers.shouldCreateBranch
+    }
 
     if (!shouldCreateBranch) {
       log.debug('User does not want to create branch')

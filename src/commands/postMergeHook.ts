@@ -11,7 +11,7 @@ import { isInteractive } from '../lib/util.js'
 
 export async function postMergeHook({ name }: CliFlags) {
   try {
-    const { apiKey, projectId } = getConfig()
+    const { apiKey, noTtyShouldPromoteBranch, projectId } = getConfig()
 
     if (!projectId) {
       log.error('No projectId found, check your API url')
@@ -20,11 +20,6 @@ export async function postMergeHook({ name }: CliFlags) {
 
     if (!apiKey) {
       log.error('No API key found')
-      return
-    }
-
-    if (!isInteractive()) {
-      log.debug('Non-interactive shell detected')
       return
     }
 
@@ -57,19 +52,23 @@ export async function postMergeHook({ name }: CliFlags) {
 
     log.debug('Proceding with branchName:', branchName)
 
-    const questions = [
-      {
-        type: 'confirm',
-        prefix: logPrefix,
-        name: 'shouldMergeBranch',
-        message: `Would you like to promote the '${branchName}' API branch?`,
-        default: true,
-      },
-    ]
+    let shouldPromoteBranch = noTtyShouldPromoteBranch
 
-    const { shouldMergeBranch } = await inquirer.prompt(questions)
+    if (isInteractive()) {
+      log.debug('Interactive shell detected, prompting user')
+      const answers = await inquirer.prompt([
+        {
+          type: 'confirm',
+          prefix: logPrefix,
+          name: 'shouldMergeBranch',
+          message: `Would you like to promote the '${branchName}' API branch?`,
+          default: true,
+        },
+      ])
+      shouldPromoteBranch = answers.shouldMergeBranch
+    }
 
-    if (!shouldMergeBranch) {
+    if (!shouldPromoteBranch) {
       log.debug('User does not want to merge the branch')
       return
     }
