@@ -67,7 +67,7 @@ export async function getCommitInfo(env: Env): Promise<CommitInfo> {
     const [gitRepoOwner, gitRepoName] = process.env['GITHUB_REPOSITORY']?.split('/') ?? []
 
     return {
-      gitCommitRef: process.env['GITHUB_REF_NAME'],
+      gitCommitRef: process.env['GITHUB_HEAD_REF'],
       gitCommitSha: process.env['GITHUB_SHA'],
       gitRepoName,
       gitRepoOwner,
