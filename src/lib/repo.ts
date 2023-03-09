@@ -3,9 +3,9 @@ import { DEFAULT_BRANCH_NAMES } from './constants.js'
 import { Env } from './types.js'
 
 function getDefaultBranches() {
-  if (process.env['DEFAULT_BRANCH']) {
+  if (process.env['SHAPE_DEFAULT_BRANCH']) {
     // If using a different default branch name
-    return [process.env['DEFAULT_BRANCH']]
+    return [process.env['SHAPE_DEFAULT_BRANCH']]
   }
 
   return DEFAULT_BRANCH_NAMES

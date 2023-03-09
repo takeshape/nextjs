@@ -178,14 +178,18 @@ export function getClient({ apiKey }: ClientConfig) {
 
       try {
         log.debug('tagBranch', { variables })
+
         const { result } = await client.request<
           TagBranchMutationPayload,
           TagBranchMutationVariables
         >(tagBranchMutation, variables)
+
         log.debug('tagBranch', { result })
+
         return result
       } catch (error) {
         log.debug(error)
+
         throw new Error(formatErrorMessage(error))
       }
     },

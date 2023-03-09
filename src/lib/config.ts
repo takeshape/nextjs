@@ -38,11 +38,11 @@ export function getConfig() {
     return config
   }
 
-  const apiKey = process.env['API_KEY'] ?? process.env['TAKESHAPE_API_KEY']
-  const apiUrl = process.env['API_URL'] ?? process.env['NEXT_PUBLIC_TAKESHAPE_API_URL']
+  const apiKey = process.env['SHAPE_API_KEY'] ?? process.env['TAKESHAPE_API_KEY']
+  const apiUrl = process.env['SHAPE_API_URL'] ?? process.env['NEXT_PUBLIC_TAKESHAPE_API_URL']
   const projectId = apiUrl && getProjectId(apiUrl)
-  const logLevel = getLogLevel(process.env['LOG_LEVEL'])
-  const githubToken = process.env['GITHUB_TOKEN']
+  const logLevel = getLogLevel(process.env['SHAPE_LOG_LEVEL'])
+  const githubToken = process.env['SHAPE_GITHUB_TOKEN'] ?? process.env['GITHUB_TOKEN']
 
   const rawNoTtyShouldCreateBranch = process.env['NO_TTY_SHOULD_CREATE_BRANCH']
   const noTtyShouldCreateBranch =

@@ -2,6 +2,8 @@
 
 /**
  * This is a deliberately quiet command, suitable for setting an export ENV_VAR.
+ *
+ * Note that at LOG_LEVEL = 'debug' this probably won't work.
  */
 
 import { getBranchForLocal, tagBranchForBuild } from '../lib/branches.js'
