@@ -27,6 +27,8 @@ export async function promoteBranch({ name, lookupPr, productionOnly }: CliFlags
 
     const { gitCommitRef, gitCommitSha, gitRepoName, gitRepoOwner } = await getCommitInfo(env)
 
+    log.debug({ gitCommitRef, gitRepoOwner, gitRepoName, gitCommitSha })
+
     let branchName: string
 
     if (lookupPr) {
