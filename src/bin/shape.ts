@@ -24,8 +24,9 @@ const cli = meow(
     prepare-env
 
   Flags
-    --name       A branch name. create-branch, delete-branch, promote-branch
-    --lookup-pr  Use a SHA to lookup a branch name. promote-branch only.
+    --name             A branch name. create-branch, delete-branch, promote-branch
+    --lookup-pr        Use a SHA to lookup a branch name. promote-branch only.
+    --production-only  Only run the command in a production environment. promote-branch only.
 
   Examples
     $ shape create-branch --name my_branch
@@ -37,6 +38,9 @@ const cli = meow(
         type: 'string',
       },
       lookupPr: {
+        type: 'boolean',
+      },
+      productionOnly: {
         type: 'boolean',
       },
     },

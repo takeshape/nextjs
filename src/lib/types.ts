@@ -33,4 +33,5 @@ export type LogLevel = 20 | 30 | 50
 export type CliFlags = {
   name?: string
   lookupPr?: boolean
+  productionOnly?: boolean
 }

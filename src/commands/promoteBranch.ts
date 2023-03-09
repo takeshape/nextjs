@@ -2,7 +2,7 @@
 
 import { Octokit } from 'octokit'
 import { getClient } from '../lib/client.js'
-import { getConfig } from '../lib/config.js'
+import { getBuildEnv, getConfig } from '../lib/config.js'
 import { DEVELOPMENT, PRODUCTION } from '../lib/constants.js'
 import { getHeadRefFromCommitPullsList } from '../lib/github.js'
 import { log } from '../lib/log.js'
@@ -11,8 +11,15 @@ import { CliFlags } from '../lib/types.js'
 
 const { apiKey, env, githubToken, projectId } = getConfig()
 
-export async function promoteBranch({ name, lookupPr }: CliFlags) {
+export async function promoteBranch({ name, lookupPr, productionOnly }: CliFlags) {
   try {
+    const buildEnv = getBuildEnv(env)
+
+    if (productionOnly && buildEnv !== 'production') {
+      log.info(`Not a 'production' environment, skipping`)
+      return
+    }
+
     if (!apiKey) {
       log.error('TAKESHAPE_API_KEY not set')
       return
