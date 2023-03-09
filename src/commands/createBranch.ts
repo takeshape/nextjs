@@ -4,10 +4,10 @@ import { getClient } from '../lib/client.js'
 import { getConfig } from '../lib/config.js'
 import { DEVELOPMENT } from '../lib/constants.js'
 import { log } from '../lib/log.js'
-import { getHeadBranchName, isDefaultBranch } from '../lib/repo.js'
+import { getCommitInfo, isDefaultBranch } from '../lib/repo.js'
 import { CliFlags } from '../lib/types.js'
 
-const { apiKey, projectId } = getConfig()
+const { apiKey, env, projectId } = getConfig()
 
 export async function createBranch({ name }: CliFlags) {
   try {
@@ -16,14 +16,14 @@ export async function createBranch({ name }: CliFlags) {
       return
     }
 
-    const headBranchName = await getHeadBranchName()
+    const { gitCommitRef } = await getCommitInfo(env)
 
     let branchName = name
 
     if (name) {
       branchName = name
-    } else if (headBranchName) {
-      branchName = headBranchName
+    } else if (gitCommitRef) {
+      branchName = gitCommitRef
     } else {
       log.error(`A --name arg must be provided if not used in a repo`)
       return

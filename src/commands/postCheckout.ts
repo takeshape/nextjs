@@ -5,13 +5,9 @@ import { getClient } from '../lib/client.js'
 import { getConfig } from '../lib/config.js'
 import { DEVELOPMENT } from '../lib/constants.js'
 import { log, logPrefix } from '../lib/log.js'
-import { getHeadBranchName, isDefaultBranch } from '../lib/repo.js'
+import { getCommitInfo, isDefaultBranch } from '../lib/repo.js'
 
-const { apiKey, projectId } = getConfig()
-
-type Questions = {
-  shouldCreateBranch: boolean
-}
+const { apiKey, env, projectId } = getConfig()
 
 const questions = [
   {
@@ -33,20 +29,20 @@ export function postCheckout() {
       try {
         const client = getClient({ apiKey })
 
-        const headBranchName = await getHeadBranchName()
+        const { gitCommitRef } = await getCommitInfo(env)
 
-        if (!headBranchName) {
+        if (!gitCommitRef) {
           log.error(`Could not read your repo`)
           return
         }
 
-        if (await isDefaultBranch(headBranchName)) {
+        if (await isDefaultBranch(gitCommitRef)) {
           log.error(`Default 'production' branch already exists`)
           return
         }
 
         const result = await client.createBranch({
-          input: { projectId, environment: DEVELOPMENT, branchName: headBranchName },
+          input: { projectId, environment: DEVELOPMENT, branchName: gitCommitRef },
         })
 
         if (result?.branch) {
