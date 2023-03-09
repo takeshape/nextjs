@@ -7,9 +7,8 @@ import { DEVELOPMENT } from '../lib/constants.js'
 import { log, logPrefix } from '../lib/log.js'
 import { getCommitInfo, isDefaultBranch } from '../lib/repo.js'
 import { CliFlags } from '../lib/types.js'
-import { isInteractive } from '../lib/util.js'
 
-export async function postCheckoutHook({ name }: CliFlags) {
+export async function postCheckoutHook({ name, tty }: CliFlags) {
   try {
     const { apiKey, env, noTtyShouldCreateBranch, projectId } = getConfig()
 
@@ -25,7 +24,7 @@ export async function postCheckoutHook({ name }: CliFlags) {
 
     let shouldCreateBranch = noTtyShouldCreateBranch
 
-    if (isInteractive()) {
+    if (tty) {
       log.debug('Interactive shell detected, prompting user')
       const answers = await inquirer.prompt([
         {

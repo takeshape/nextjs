@@ -7,9 +7,8 @@ import { DEVELOPMENT, PRODUCTION } from '../lib/constants.js'
 import { log, logPrefix } from '../lib/log.js'
 import { getMergedBranchName, isDefaultBranch } from '../lib/repo.js'
 import { CliFlags } from '../lib/types.js'
-import { isInteractive } from '../lib/util.js'
 
-export async function postMergeHook({ name }: CliFlags) {
+export async function postMergeHook({ name, tty }: CliFlags) {
   try {
     const { apiKey, noTtyShouldPromoteBranch, projectId } = getConfig()
 
@@ -54,7 +53,7 @@ export async function postMergeHook({ name }: CliFlags) {
 
     let shouldPromoteBranch = noTtyShouldPromoteBranch
 
-    if (isInteractive()) {
+    if (tty) {
       log.debug('Interactive shell detected, prompting user')
       const answers = await inquirer.prompt([
         {

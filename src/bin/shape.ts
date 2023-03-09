@@ -32,6 +32,7 @@ const helpMessage = `
     --name             A branch name. Works with most commands and will override any branch-finding.
     --lookup-pr        Use a SHA to lookup a branch name. promote-branch only.
     --production-only  Only run the command in a production environment. promote-branch only.
+    --no-tty           If you're running the interactive hooks in a non-interactive environment set this.
 
   Examples
     $ shape create-branch --name my_branch
@@ -45,6 +46,9 @@ const cli = meow(helpMessage, {
       type: 'string',
     },
     lookupPr: {
+      type: 'boolean',
+    },
+    tty: {
       type: 'boolean',
     },
     productionOnly: {
