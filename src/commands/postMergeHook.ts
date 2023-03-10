@@ -1,15 +1,21 @@
 #!/usr/bin/env node
 
 import inquirer from 'inquirer'
+import { CommandModule } from 'yargs'
 import { getClient } from '../lib/client.js'
 import { ensureCoreConfig, getConfig } from '../lib/config.js'
 import { DEVELOPMENT } from '../lib/constants.js'
 import { log, logPrefix } from '../lib/log.js'
 import { getMergedBranchName, isDefaultBranch } from '../lib/repo.js'
-import { CliFlags } from '../lib/types.js'
-import { promoteBranch } from './promoteBranch.js'
+import { isInteractive } from '../lib/util.js'
+import { handler as promoteBranch } from './promoteBranch.js'
 
-export async function postMergeHook({ name, tty }: CliFlags) {
+type Args = {
+  name?: string
+  tty: boolean
+}
+
+export async function handler({ name, tty }: Args) {
   try {
     const { apiKey, projectId } = ensureCoreConfig()
     const { noTtyShouldPromoteBranch, promptPromoteBranch } = getConfig()
@@ -64,7 +70,7 @@ export async function postMergeHook({ name, tty }: CliFlags) {
       return
     }
 
-    return promoteBranch({ name })
+    return promoteBranch({ name, lookupPr: false, productionOnly: false })
   } catch (error) {
     log.debug(error)
 
@@ -74,4 +80,23 @@ export async function postMergeHook({ name, tty }: CliFlags) {
 
     return
   }
+}
+
+export const postMergeHook: CommandModule<unknown, Args> = {
+  command: 'post-merge-hook',
+  describe: 'Typically invoked by the git post-merge hook',
+  builder: {
+    name: {
+      describe: 'A specific branch name to use, instead of finding a value from your env',
+      type: 'string',
+      demand: false,
+    },
+    tty: {
+      describe: 'Does your terminal have tty support?',
+      type: 'boolean',
+      demand: false,
+      default: isInteractive(),
+    },
+  },
+  handler,
 }

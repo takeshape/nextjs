@@ -1,14 +1,18 @@
 #!/usr/bin/env node
 
+import { CommandModule } from 'yargs'
 import { getClient } from '../lib/client.js'
 import { ensureCoreConfig } from '../lib/config.js'
 import { DEVELOPMENT } from '../lib/constants.js'
 import { log } from '../lib/log.js'
 import { fatal } from '../lib/process.js'
 import { getCommitInfo, isDefaultBranch } from '../lib/repo.js'
-import { CliFlags } from '../lib/types.js'
 
-export async function createBranch({ name }: CliFlags) {
+type Args = {
+  name?: string
+}
+
+export async function handler({ name }: Args) {
   try {
     const { apiKey, env, projectId } = ensureCoreConfig()
     const { gitCommitRef } = await getCommitInfo(env)
@@ -55,4 +59,17 @@ export async function createBranch({ name }: CliFlags) {
 
     fatal()
   }
+}
+
+export const createBranch: CommandModule<unknown, Args> = {
+  command: 'create-branch',
+  describe: 'Create a new API branch',
+  builder: {
+    name: {
+      describe: 'A specific branch name to use, instead of finding a value from your env',
+      type: 'string',
+      demand: false,
+    },
+  },
+  handler,
 }

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { Octokit } from 'octokit'
+import { CommandModule } from 'yargs'
 import { getClient } from '../lib/client.js'
 import { ensureCoreConfig, getBuildEnv, getConfig } from '../lib/config.js'
 import { DEVELOPMENT, PRODUCTION } from '../lib/constants.js'
@@ -8,9 +9,14 @@ import { getHeadRefFromCommitPullsList } from '../lib/github.js'
 import { log } from '../lib/log.js'
 import { fatal } from '../lib/process.js'
 import { getCommitInfo, isDefaultBranch } from '../lib/repo.js'
-import { CliFlags } from '../lib/types.js'
 
-export async function promoteBranch({ name, lookupPr, productionOnly }: CliFlags) {
+type Args = {
+  name?: string
+  lookupPr: boolean
+  productionOnly: boolean
+}
+
+export async function handler({ name, lookupPr, productionOnly }: Args) {
   try {
     const { apiKey, env, projectId } = ensureCoreConfig()
     const { githubToken } = getConfig()
@@ -106,4 +112,29 @@ export async function promoteBranch({ name, lookupPr, productionOnly }: CliFlags
 
     fatal()
   }
+}
+
+export const promoteBranch: CommandModule<unknown, Args> = {
+  command: 'promote-branch',
+  describe: 'Promote an API branch to production and delete that branch',
+  builder: {
+    name: {
+      describe: 'A specific branch name to use, instead of finding a value from your env.',
+      type: 'string',
+      demand: false,
+    },
+    'lookup-pr': {
+      describe: 'Lookup a PR matching the SHA on GitHub',
+      type: 'boolean',
+      demand: false,
+      default: false,
+    },
+    'production-only': {
+      describe: 'Only run this in the production build environment',
+      type: 'boolean',
+      demand: false,
+      default: true,
+    },
+  },
+  handler,
 }

@@ -4,8 +4,8 @@ import { Config, CoreConfig, ensureCoreConfig, getConfig } from '../../lib/confi
 import { DEVELOPMENT } from '../../lib/constants'
 import { isDefaultBranch } from '../../lib/repo'
 import { BranchWithLatestVersion } from '../../lib/types'
-import { postMergeHook } from '../postMergeHook'
-import { promoteBranch } from '../promoteBranch'
+import { handler as postMergeHook } from '../postMergeHook'
+import { handler as promoteBranch } from '../promoteBranch'
 
 vi.mock('../promoteBranch.js')
 vi.mock('../../lib/config.js')

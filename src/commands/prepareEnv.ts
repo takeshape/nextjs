@@ -3,7 +3,10 @@
 import inquirer from 'inquirer'
 import fs from 'node:fs'
 import fsp from 'node:fs/promises'
+import { CommandModule } from 'yargs'
 import { log } from '../lib/log.js'
+
+type Args = Record<string, never>
 
 const files = {
   env: {
@@ -50,7 +53,7 @@ const questions = [
   },
 ]
 
-export async function prepareEnv() {
+export async function handler() {
   const answers = await inquirer.prompt(questions)
 
   if (answers['overwriteEnvFile'] === true || answers['overwriteEnvFile'] === undefined) {
@@ -67,4 +70,10 @@ export async function prepareEnv() {
     log.info('Creating new .env.local file')
     await fsp.copyFile(files.envLocal.src, files.envLocal.dest)
   }
+}
+
+export const prepareEnv: CommandModule<unknown, Args> = {
+  command: 'prepare-env',
+  describe: 'Prepare the .env files for your project',
+  handler,
 }

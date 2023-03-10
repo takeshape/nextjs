@@ -1,12 +1,18 @@
 #!/usr/bin/env node
 
 import inquirer from 'inquirer'
+import { CommandModule } from 'yargs'
 import { getConfig } from '../lib/config.js'
 import { log, logPrefix } from '../lib/log.js'
-import { CliFlags } from '../lib/types.js'
-import { createBranch } from './createBranch.js'
+import { isInteractive } from '../lib/util.js'
+import { handler as createBranch } from './createBranch.js'
 
-export async function postCheckoutHook({ name, tty }: CliFlags) {
+type Args = {
+  name?: string
+  tty: boolean
+}
+
+export async function handler({ name, tty }: Args) {
   try {
     const { noTtyShouldCreateBranch, promptCreateBranch } = getConfig()
 
@@ -31,7 +37,7 @@ export async function postCheckoutHook({ name, tty }: CliFlags) {
       return
     }
 
-    return createBranch({ name })
+    return createBranch({ name } as any)
   } catch (error) {
     log.debug(error)
 
@@ -41,4 +47,23 @@ export async function postCheckoutHook({ name, tty }: CliFlags) {
 
     return
   }
+}
+
+export const postCheckoutHook: CommandModule<unknown, Args> = {
+  command: 'post-checkout-hook',
+  describe: 'Typically invoked by the git post-checkout hook',
+  builder: {
+    name: {
+      describe: 'A specific branch name to use, instead of finding a value from your env',
+      type: 'string',
+      demand: false,
+    },
+    tty: {
+      describe: 'Does your terminal have tty support?',
+      type: 'boolean',
+      demand: false,
+      default: isInteractive(),
+    },
+  },
+  handler,
 }

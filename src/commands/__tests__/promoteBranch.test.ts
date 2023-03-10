@@ -6,7 +6,7 @@ import { getHeadRefFromCommitPullsList } from '../../lib/github'
 import { log } from '../../lib/log'
 import { getCommitInfo, isDefaultBranch } from '../../lib/repo'
 import { BranchWithUrl } from '../../lib/types'
-import { promoteBranch } from '../promoteBranch'
+import { handler as promoteBranch } from '../promoteBranch'
 
 vi.mock('../../lib/process.js')
 vi.mock('../../lib/config.js')
@@ -65,7 +65,7 @@ describe('promoteBranch', () => {
   it('exits when productionOnly is set and the buildEnv is preview', async () => {
     vi.mocked(getBuildEnv).mockReturnValueOnce('preview')
 
-    await promoteBranch({ name: branchName, productionOnly: true })
+    await promoteBranch({ name: branchName, productionOnly: true, lookupPr: false })
 
     expect(log.info).toHaveBeenCalledWith(`Not a 'production' environment, skipping`)
   })
@@ -73,7 +73,7 @@ describe('promoteBranch', () => {
   it('does not exit when productionOnly is not set and the buildEnv is preview', async () => {
     vi.mocked(getBuildEnv).mockReturnValueOnce('preview')
 
-    await promoteBranch({ name: branchName })
+    await promoteBranch({ name: branchName, productionOnly: false, lookupPr: false })
 
     expect(log.info).toHaveBeenCalledWith('Promoting API branch...')
   })
@@ -81,7 +81,7 @@ describe('promoteBranch', () => {
   it('does not have enough info to look up a pr', async () => {
     vi.mocked(getCommitInfo).mockResolvedValue({ ...commitInfo, gitCommitSha: undefined })
 
-    await promoteBranch({ lookupPr: true })
+    await promoteBranch({ productionOnly: false, lookupPr: true })
 
     expect(log.debug).toHaveBeenCalledWith(`Using --lookup-pr`, {
       ...commitInfo,
@@ -93,7 +93,7 @@ describe('promoteBranch', () => {
   it('looks up a pr but cannot find a ref', async () => {
     vi.mocked(getHeadRefFromCommitPullsList).mockResolvedValueOnce(undefined)
 
-    await promoteBranch({ lookupPr: true })
+    await promoteBranch({ productionOnly: false, lookupPr: true })
 
     expect(log.debug).toHaveBeenCalledWith(`Using --lookup-pr`, commitInfo)
     expect(log.error).toHaveBeenCalledWith(`Could not find a PR ref`)
@@ -123,7 +123,7 @@ describe('promoteBranch', () => {
       mergedBranch: branch,
     })
 
-    await promoteBranch({ lookupPr: true })
+    await promoteBranch({ productionOnly: false, lookupPr: true })
 
     expect(log.debug).toHaveBeenCalledWith(`Using --lookup-pr`, commitInfo)
     expect(log.debug).toHaveBeenCalledWith(`Proceeding with branchName:`, branchName)
@@ -158,7 +158,7 @@ describe('promoteBranch', () => {
   it('bails if it could not get the production branch', async () => {
     vi.mocked(client.getBranch).mockResolvedValueOnce(undefined)
 
-    await promoteBranch({ name: branchName })
+    await promoteBranch({ name: branchName, productionOnly: false, lookupPr: false })
 
     expect(log.error).toHaveBeenCalledWith(
       `Cannot promote the branch, could not get latest version`,
@@ -179,7 +179,7 @@ describe('promoteBranch', () => {
       },
     })
 
-    await promoteBranch({ name: branchName })
+    await promoteBranch({ name: branchName, productionOnly: false, lookupPr: false })
 
     expect(log.debug).toHaveBeenCalledWith(`Using user-provided --name`, branchName)
     expect(log.debug).toHaveBeenCalledWith(`Proceeding with branchName:`, branchName)
@@ -210,7 +210,7 @@ describe('promoteBranch', () => {
       mergedBranch: branch,
     })
 
-    await promoteBranch({})
+    await promoteBranch({ productionOnly: false, lookupPr: false })
 
     expect(log.debug).toHaveBeenCalledWith(`Using found gitCommitRef`, commitInfo.gitCommitRef)
     expect(log.info).toHaveBeenCalledWith(`Promoted and deleted the API branch '${branchName}'`)
@@ -218,7 +218,7 @@ describe('promoteBranch', () => {
 
   it('does not try to promote a default branch', async () => {
     vi.mocked(isDefaultBranch).mockReturnValueOnce(true)
-    await promoteBranch({})
+    await promoteBranch({ productionOnly: false, lookupPr: false })
     expect(log.info).toHaveBeenCalledWith(`Cannot promote the default branch`)
   })
 })

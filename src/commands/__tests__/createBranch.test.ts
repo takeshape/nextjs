@@ -5,7 +5,7 @@ import { DEVELOPMENT } from '../../lib/constants'
 import { log } from '../../lib/log'
 import { getCommitInfo, isDefaultBranch } from '../../lib/repo'
 import { BranchWithUrl } from '../../lib/types'
-import { createBranch } from '../createBranch'
+import { handler as createBranch } from '../createBranch'
 
 vi.mock('../../lib/process.js')
 vi.mock('../../lib/config.js')

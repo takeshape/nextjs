@@ -119,11 +119,13 @@
     "inquirer": "^9.1.4",
     "meow": "^11.0.0",
     "octokit": "^2.0.14",
-    "simple-git": "^3.17.0"
+    "simple-git": "^3.17.0",
+    "yargs": "^17.7.1"
   },
   "devDependencies": {
     "@types/inquirer": "^9.0.3",
     "@types/node": "^18.14.6",
+    "@types/yargs": "^17.0.22",
     "@typescript-eslint/eslint-plugin": "^5.54.1",
     "@typescript-eslint/parser": "^5.54.1",
     "del-cli": "^5.0.0",
