@@ -117,7 +117,6 @@
     "dotenv": "^16.0.3",
     "graphql-request": "^5.2.0",
     "inquirer": "^9.1.4",
-    "meow": "^11.0.0",
     "octokit": "^2.0.14",
     "simple-git": "^3.17.0",
     "yargs": "^17.7.1"

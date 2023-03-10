@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Config, getConfig } from '../../lib/config'
-import { createBranch } from '../createBranch'
+import { handler as createBranch } from '../createBranch'
 import { handler as postCheckoutHook } from '../postCheckoutHook'
 
 vi.mock('../createBranch.js')

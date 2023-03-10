@@ -55,6 +55,10 @@ describe('postMergeHook', () => {
 
     await postMergeHook({ name: branchName, tty: false })
 
-    expect(promoteBranch).toHaveBeenCalledWith({ name: branchName })
+    expect(promoteBranch).toHaveBeenCalledWith({
+      name: branchName,
+      lookupPr: false,
+      productionOnly: false,
+    })
   })
 })
