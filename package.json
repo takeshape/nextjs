@@ -50,8 +50,7 @@
       }
     },
     "extends": [
-      "eslint:recommended",
-      "plugin:prettier/recommended"
+      "eslint:recommended"
     ],
     "rules": {
       "capitalized-comments": "off",
@@ -59,6 +58,14 @@
       "no-unreachable": "error"
     },
     "overrides": [
+      {
+        "files": [
+          "**/*.js"
+        ],
+        "extends": [
+          "plugin:prettier/recommended"
+        ]
+      },
       {
         "files": [
           "**/*.ts",
@@ -70,7 +77,8 @@
           "sourceType": "module"
         },
         "extends": [
-          "plugin:@typescript-eslint/recommended"
+          "plugin:@typescript-eslint/recommended",
+          "plugin:prettier/recommended"
         ],
         "rules": {
           "@typescript-eslint/no-explicit-any": "off"

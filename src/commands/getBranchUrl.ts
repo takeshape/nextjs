@@ -12,12 +12,12 @@ import { getConfig } from '../lib/config.js'
 import { log } from '../lib/log.js'
 import { BranchWithUrl } from '../lib/types.js'
 
-export async function getBranchUrl() {
+export async function _getBranchUrl() {
   try {
     const { apiKey, apiUrl, env } = getConfig()
 
     if (!apiKey) {
-      return
+      return apiUrl
     }
 
     const client = getClient({ apiKey })
@@ -30,9 +30,15 @@ export async function getBranchUrl() {
       branch = await tagBranchForBuild(client)
     }
 
-    // eslint-disable-next-line no-console
-    console.log(branch?.graphqlUrl ?? apiUrl)
+    return branch?.graphqlUrl ?? apiUrl
   } catch (error) {
     log.debug(error)
+    return
   }
+}
+
+export async function getBranchUrl() {
+  const branchUrl = await _getBranchUrl()
+  // eslint-disable-next-line no-console
+  console.log(branchUrl)
 }

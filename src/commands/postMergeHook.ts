@@ -2,25 +2,17 @@
 
 import inquirer from 'inquirer'
 import { getClient } from '../lib/client.js'
-import { getConfig } from '../lib/config.js'
-import { DEVELOPMENT, PRODUCTION } from '../lib/constants.js'
+import { ensureCoreConfig, getConfig } from '../lib/config.js'
+import { DEVELOPMENT } from '../lib/constants.js'
 import { log, logPrefix } from '../lib/log.js'
 import { getMergedBranchName, isDefaultBranch } from '../lib/repo.js'
 import { CliFlags } from '../lib/types.js'
+import { promoteBranch } from './promoteBranch.js'
 
 export async function postMergeHook({ name, tty }: CliFlags) {
   try {
-    const { apiKey, noTtyShouldPromoteBranch, projectId } = getConfig()
-
-    if (!projectId) {
-      log.error('No projectId found, check your API url')
-      return
-    }
-
-    if (!apiKey) {
-      log.error('No API key found')
-      return
-    }
+    const { apiKey, projectId } = ensureCoreConfig()
+    const { noTtyShouldPromoteBranch } = getConfig()
 
     const mergedBranchName = name ?? (await getMergedBranchName())
 
@@ -49,7 +41,7 @@ export async function postMergeHook({ name, tty }: CliFlags) {
 
     const { branchName } = existingBranch
 
-    log.debug('Proceding with branchName:', branchName)
+    log.debug('Proceeding with branchName:', branchName)
 
     let shouldPromoteBranch = noTtyShouldPromoteBranch
 
@@ -72,43 +64,14 @@ export async function postMergeHook({ name, tty }: CliFlags) {
       return
     }
 
-    const productionBranch = await client.getBranch({ projectId, environment: PRODUCTION })
-
-    if (!productionBranch) {
-      log.error('Cannot promote the branch, could not get latest version')
-      return
-    }
-
-    const result = await client.mergeBranch({
-      input: {
-        projectId,
-        deleteMergedHead: true,
-        head: {
-          environment: DEVELOPMENT,
-          branchName,
-        },
-        base: {
-          environment: PRODUCTION,
-        },
-        target: {
-          environment: PRODUCTION,
-          version: productionBranch.latestVersion.version,
-        },
-      },
-    })
-
-    if (result?.deletedBranch) {
-      log.info(`Promoted and deleted the API branch '${result.deletedBranch.branchName}'`)
-      return
-    }
-
-    log.info('No API branches were promoted')
+    return promoteBranch({ name })
   } catch (error) {
     log.debug(error)
 
     if (error instanceof Error) {
       log.error(error.message)
-      return
     }
+
+    return
   }
 }

@@ -20,15 +20,15 @@ function toBoolean(envVar: string) {
   return envVar === 'true' || envVar === '1'
 }
 
-type Config = {
-  apiKey: string | undefined
-  apiUrl: string | undefined
+export type Config = {
+  apiKey?: string
+  apiUrl?: string
   env: Env
-  githubToken: string | undefined
+  githubToken?: string
   logLevel: LogLevel
   noTtyShouldCreateBranch: boolean
   noTtyShouldPromoteBranch: boolean
-  projectId: string | undefined
+  projectId?: string
 }
 
 let config: Config
@@ -109,4 +109,20 @@ export function getBuildEnv(env: Env): BuildEnv | undefined {
   }
 
   return
+}
+
+export type CoreConfig = Required<Pick<Config, 'apiKey' | 'env' | 'projectId'>>
+
+export function ensureCoreConfig(): CoreConfig {
+  const { apiKey, env, projectId } = getConfig()
+
+  if (!projectId) {
+    throw new Error('No projectId found, check your API url')
+  }
+
+  if (!apiKey) {
+    throw new Error('No API key found')
+  }
+
+  return { apiKey, env, projectId }
 }

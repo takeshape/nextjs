@@ -1,42 +1,31 @@
 #!/usr/bin/env node
 
 import { getClient } from '../lib/client.js'
-import { getConfig } from '../lib/config.js'
+import { ensureCoreConfig } from '../lib/config.js'
 import { DEVELOPMENT } from '../lib/constants.js'
 import { log } from '../lib/log.js'
+import { fatal } from '../lib/process.js'
 import { getCommitInfo, isDefaultBranch } from '../lib/repo.js'
 import { CliFlags } from '../lib/types.js'
 
 export async function deleteBranch({ name }: CliFlags) {
   try {
-    const { apiKey, env, projectId } = getConfig()
-
-    if (!projectId) {
-      log.error('No projectId found, check your API url')
-      process.exit(1)
-    }
-
-    if (!apiKey) {
-      log.error('No API key found')
-      process.exit(1)
-    }
-
+    const { apiKey, env, projectId } = ensureCoreConfig()
     const { gitCommitRef } = await getCommitInfo(env)
 
     let branchName: string | undefined
 
     if (name) {
-      log.debug('Using user-provided --name')
+      log.debug('Using user-provided --name', name)
       branchName = name
     } else if (gitCommitRef) {
-      log.debug('Using found gitCommitRef', { gitCommitRef })
+      log.debug('Using found gitCommitRef', gitCommitRef)
       branchName = gitCommitRef
     } else {
-      log.error(`A --name arg must be provided if not used in a repo`)
-      process.exit(1)
+      throw new Error(`A --name arg must be provided if not used in a repo`)
     }
 
-    log.debug('Proceding with branchName:', branchName)
+    log.debug('Proceeding with branchName:', branchName)
 
     if (isDefaultBranch(branchName)) {
       log.info(`Cannot delete the 'production' branch`)
@@ -64,6 +53,6 @@ export async function deleteBranch({ name }: CliFlags) {
       log.error(error.message)
     }
 
-    process.exit(1)
+    fatal()
   }
 }

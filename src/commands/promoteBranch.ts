@@ -2,32 +2,22 @@
 
 import { Octokit } from 'octokit'
 import { getClient } from '../lib/client.js'
-import { getBuildEnv, getConfig } from '../lib/config.js'
+import { ensureCoreConfig, getBuildEnv, getConfig } from '../lib/config.js'
 import { DEVELOPMENT, PRODUCTION } from '../lib/constants.js'
 import { getHeadRefFromCommitPullsList } from '../lib/github.js'
 import { log } from '../lib/log.js'
+import { fatal } from '../lib/process.js'
 import { getCommitInfo, isDefaultBranch } from '../lib/repo.js'
 import { CliFlags } from '../lib/types.js'
 
 export async function promoteBranch({ name, lookupPr, productionOnly }: CliFlags) {
   try {
-    const { apiKey, env, githubToken, projectId } = getConfig()
+    const { apiKey, env, projectId } = ensureCoreConfig()
+    const { githubToken } = getConfig()
 
-    if (!projectId) {
-      log.error('No projectId found, check your API url')
-      process.exit(1)
-    }
-
-    const buildEnv = getBuildEnv(env)
-
-    if (productionOnly && buildEnv !== 'production') {
+    if (productionOnly && getBuildEnv(env) !== 'production') {
       log.info(`Not a 'production' environment, skipping`)
       return
-    }
-
-    if (!apiKey) {
-      log.error('No API key found')
-      process.exit(1)
     }
 
     const { gitCommitRef, gitCommitSha, gitRepoName, gitRepoOwner } = await getCommitInfo(env)
@@ -47,29 +37,26 @@ export async function promoteBranch({ name, lookupPr, productionOnly }: CliFlags
         )
 
         if (!headRef) {
-          log.error('Could not find a PR ref')
-          return
+          throw new Error('Could not find a PR ref')
         }
 
         branchName = headRef
       } else {
-        log.error('Insufficient info to find a PR ref')
-        return
+        throw new Error('Insufficient info to find a PR ref')
       }
     } else {
       if (name) {
-        log.debug('Using user-provided --name')
+        log.debug('Using user-provided --name', name)
         branchName = name
       } else if (gitCommitRef) {
-        log.debug('Using found gitCommitRef', { gitCommitRef })
+        log.debug('Using found gitCommitRef', gitCommitRef)
         branchName = gitCommitRef
       } else {
-        log.error(`A --name arg must be provided if not used in a repo`)
-        process.exit(1)
+        throw new Error(`A --name arg must be provided if not used in a repo`)
       }
     }
 
-    log.debug('Proceding with branchName:', branchName)
+    log.debug('Proceeding with branchName:', branchName)
 
     if (isDefaultBranch(branchName)) {
       log.info('Cannot promote the default branch')
@@ -83,8 +70,7 @@ export async function promoteBranch({ name, lookupPr, productionOnly }: CliFlags
     const productionBranch = await client.getBranch({ projectId, environment: PRODUCTION })
 
     if (!productionBranch) {
-      log.error('Cannot promote the branch, could not get latest version')
-      process.exit(1)
+      throw new Error('Cannot promote the branch, could not get latest version')
     }
 
     const result = await client.mergeBranch({
@@ -118,6 +104,6 @@ export async function promoteBranch({ name, lookupPr, productionOnly }: CliFlags
       log.error(error.message)
     }
 
-    process.exit(1)
+    fatal()
   }
 }
