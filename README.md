@@ -1,11 +1,15 @@
-# @takehsape/shape-tools
+# @takeshape/shape-tools
 
 Tools primarily for working with Next.js based projects in build and CI environments using Vercel, Netlify and GitHub.
 Supports [penny](https://github.com/takeshape/penny).
 
+If you're looking for the full-featured TakeShape CLI, this isn't it!
+[Head over here](https://www.npmjs.com/package/@takeshape/cli) or run `npm install @takeshape/cli`
+
 ## Installation
 
-You should primarily use this package installed in a project and then aliased via npm scripts.
+You should use this package installed in a project and then aliased via npm scripts, or in CI, but it's not
+intended for global use. You may run into issues if you do.
 
 ```sh
 $ npm install @takeshape/shape-tools --save-dev
@@ -25,8 +29,10 @@ This package expects the following variables to be defined in the environment:
 - `SHAPE_DEFAULT_BRANCH` - Set an alternate default branch name. Otherwise `master` and `main` will both be checked.
 - `SHAPE_GITHUB_TOKEN` OR `GITHUB_TOKEN` - Provide a GitHub personal access token for accessing PR information from the GitHub API. Requires
   access to the repo you're working with and permissions sufficient to list PR issues.
-- `NO_TTY_SHOULD_CREATE_BRANCH` - A flag setting the create branch behavior in non-TTY environments, like the VSCode git tools. By default this is `true`.
-- `NO_TTY_SHOULD_MERGE_BRANCH` - A flag setting the merge branch behavior in non-TTY environments. By default this is `true`.
+- `NO_PROMPT_CREATE_BRANCH` - Create an API branch, without prompting when the git `post-checkout` hook fires. By default this is `'false'`.
+- `NO_PROMPT_PROMOTE_BRANCH` - Promote an API branch, without prompting when the git `post-merge` hook fires. By default this is `'false'`.
+- `NO_TTY_SHOULD_CREATE_BRANCH` - A flag setting the create branch behavior in non-TTY environments, like the VSCode git tools. By default this is `'true'`.
+- `NO_TTY_SHOULD_PROMOTE_BRANCH` - A flag setting the merge branch behavior in non-TTY environments. By default this is `'true'`.
 
 ## Usage
 

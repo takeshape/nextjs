@@ -12,7 +12,7 @@ import { promoteBranch } from './promoteBranch.js'
 export async function postMergeHook({ name, tty }: CliFlags) {
   try {
     const { apiKey, projectId } = ensureCoreConfig()
-    const { noTtyShouldPromoteBranch } = getConfig()
+    const { noTtyShouldPromoteBranch, promptPromoteBranch } = getConfig()
 
     const mergedBranchName = name ?? (await getMergedBranchName())
 
@@ -45,7 +45,7 @@ export async function postMergeHook({ name, tty }: CliFlags) {
 
     let shouldPromoteBranch = noTtyShouldPromoteBranch
 
-    if (tty) {
+    if (tty && promptPromoteBranch) {
       log.debug('Interactive shell detected, prompting user')
       const answers = await inquirer.prompt([
         {

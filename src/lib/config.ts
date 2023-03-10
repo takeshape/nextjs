@@ -26,6 +26,8 @@ export type Config = {
   env: Env
   githubToken?: string
   logLevel: LogLevel
+  promptCreateBranch: boolean
+  promptPromoteBranch: boolean
   noTtyShouldCreateBranch: boolean
   noTtyShouldPromoteBranch: boolean
   projectId?: string
@@ -52,6 +54,14 @@ export function getConfig() {
   const noTtyShouldPromoteBranch =
     rawNoTtyShouldPromoteBranch === undefined ? true : toBoolean(rawNoTtyShouldPromoteBranch)
 
+  const rawNoPromptCreateBranch = process.env['NO_PROMPT_CREATE_BRANCH']
+  const promptCreateBranch =
+    rawNoPromptCreateBranch === undefined ? true : !toBoolean(rawNoPromptCreateBranch)
+
+  const rawNoPromptPromoteBranch = process.env['NO_PROMPT_PROMOTE_BRANCH']
+  const promptPromoteBranch =
+    rawNoPromptPromoteBranch === undefined ? true : !toBoolean(rawNoPromptPromoteBranch)
+
   if (apiUrl && !projectId) {
     throw new Error('API url is invalid')
   }
@@ -76,6 +86,8 @@ export function getConfig() {
     env,
     githubToken,
     logLevel,
+    promptCreateBranch,
+    promptPromoteBranch,
     noTtyShouldCreateBranch,
     noTtyShouldPromoteBranch,
     projectId,

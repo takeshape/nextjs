@@ -8,11 +8,11 @@ import { createBranch } from './createBranch.js'
 
 export async function postCheckoutHook({ name, tty }: CliFlags) {
   try {
-    const { noTtyShouldCreateBranch } = getConfig()
+    const { noTtyShouldCreateBranch, promptCreateBranch } = getConfig()
 
     let shouldCreateBranch = noTtyShouldCreateBranch
 
-    if (tty) {
+    if (tty && promptCreateBranch) {
       log.debug('Interactive shell detected, prompting user')
       const answers = await inquirer.prompt([
         {
