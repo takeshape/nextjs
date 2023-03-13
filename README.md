@@ -1,10 +1,13 @@
 # @takeshape/shape-tools
 
-Tools primarily for working with Next.js based projects in build and CI environments using Vercel, Netlify and GitHub.
-Supports [penny](https://github.com/takeshape/penny).
+Tools for working with Next.js-based projects in local dev, and build environments using Vercel, Netlify and GitHub.
+Supports the [Penny](https://github.com/takeshape/penny) e-commerce framework.
 
-If you're looking for the full-featured TakeShape CLI, this isn't it!
-[Head over here](https://www.npmjs.com/package/@takeshape/cli) or run `npm install @takeshape/cli`
+If you're looking for the full-featured TakeShape CLI you should use `@takeshape/cli` instead:
+
+```
+$ npm install @takeshape/cli
+```
 
 ## Installation
 
