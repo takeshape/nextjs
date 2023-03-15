@@ -18,7 +18,7 @@ type Args = {
 
 export async function handler({ name, lookupPr, productionOnly }: Args) {
   try {
-    const { apiKey, env, projectId } = ensureCoreConfig()
+    const { adminUrl, apiKey, env, projectId } = ensureCoreConfig()
     const { githubToken } = getConfig()
 
     if (productionOnly && getBuildEnv(env) !== 'production') {
@@ -71,7 +71,7 @@ export async function handler({ name, lookupPr, productionOnly }: Args) {
 
     log.info('Promoting API branch...')
 
-    const client = getClient({ apiKey })
+    const client = getClient({ adminUrl, apiKey })
 
     const productionBranch = await client.getBranch({ projectId, environment: PRODUCTION })
 

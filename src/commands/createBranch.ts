@@ -14,7 +14,7 @@ type Args = {
 
 export async function handler({ name }: Args) {
   try {
-    const { apiKey, env, projectId } = ensureCoreConfig()
+    const { adminUrl, apiKey, env, projectId } = ensureCoreConfig()
     const { gitCommitRef } = await getCommitInfo(env)
 
     let branchName: string | undefined
@@ -38,7 +38,7 @@ export async function handler({ name }: Args) {
 
     log.info('Creating API branch...')
 
-    const client = getClient({ apiKey })
+    const client = getClient({ adminUrl, apiKey })
 
     const result = await client.createBranch({
       input: { projectId, environment: DEVELOPMENT, branchName },

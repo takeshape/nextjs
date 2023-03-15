@@ -17,7 +17,7 @@ type Args = {
 
 export async function handler({ name, tty }: Args) {
   try {
-    const { apiKey, projectId } = ensureCoreConfig()
+    const { adminUrl, apiKey, projectId } = ensureCoreConfig()
     const { noTtyShouldPromoteBranch, promptPromoteBranch } = getConfig()
 
     const mergedBranchName = name ?? (await getMergedBranchName())
@@ -32,7 +32,7 @@ export async function handler({ name, tty }: Args) {
       return
     }
 
-    const client = getClient({ apiKey })
+    const client = getClient({ adminUrl, apiKey })
 
     const existingBranch = await client.getBranch({
       projectId,
