@@ -4,12 +4,6 @@ import { afterAll, afterEach, beforeAll, beforeEach, expect, test, vi } from 'vi
 import { getClient } from '../client'
 import { DEVELOPMENT } from '../constants'
 
-vi.mock('../config.js', () => {
-  return {
-    getConfig: () => ({}),
-  }
-})
-
 const projectId = 'project-id'
 const apiKey = 'api-key'
 const branchName = 'my_branch'
