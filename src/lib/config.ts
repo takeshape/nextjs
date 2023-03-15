@@ -1,3 +1,4 @@
+import { ADMIN_URL } from './constants.js'
 import { BuildEnv, Env, LogLevel } from './types.js'
 
 function getProjectId(apiUrl: string) {
@@ -21,6 +22,7 @@ function toBoolean(envVar: string) {
 }
 
 export type Config = {
+  adminUrl: string
   apiKey?: string
   apiUrl?: string
   env: Env
@@ -40,6 +42,7 @@ export function getConfig() {
     return config
   }
 
+  const adminUrl = process.env['SHAPE_ADMIN_URL'] ?? ADMIN_URL
   const apiKey = process.env['SHAPE_API_KEY'] ?? process.env['TAKESHAPE_API_KEY']
   const apiUrl = process.env['SHAPE_API_URL'] ?? process.env['NEXT_PUBLIC_TAKESHAPE_API_URL']
   const projectId = apiUrl && getProjectId(apiUrl)
@@ -81,6 +84,7 @@ export function getConfig() {
   }
 
   config = {
+    adminUrl,
     apiKey,
     apiUrl,
     env,

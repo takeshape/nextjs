@@ -1,5 +1,5 @@
 import { gql, GraphQLClient } from 'graphql-request'
-import { ADMIN_URL } from './constants.js'
+import { getConfig } from './config.js'
 import { formatErrorMessage } from './errors.js'
 import { log } from './log.js'
 import {
@@ -147,7 +147,8 @@ export type ClientConfig = {
 }
 
 export function getClient({ apiKey }: ClientConfig) {
-  const client = new GraphQLClient(ADMIN_URL, { headers: { Authorization: `Bearer ${apiKey}` } })
+  const { adminUrl } = getConfig()
+  const client = new GraphQLClient(adminUrl, { headers: { Authorization: `Bearer ${apiKey}` } })
 
   return {
     async getBranch(variables: BranchArgs) {
