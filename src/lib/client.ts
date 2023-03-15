@@ -1,5 +1,5 @@
 import { gql, GraphQLClient } from 'graphql-request'
-import { getConfig } from './config.js'
+import { Config } from './config.js'
 import { formatErrorMessage } from './errors.js'
 import { log } from './log.js'
 import {
@@ -142,12 +142,9 @@ export const mergeBranchMutation = gql`
 
 export type Client = ReturnType<typeof getClient>
 
-export type ClientConfig = {
-  apiKey: string
-}
+export type ClientConfig = Pick<Config, 'adminUrl' | 'apiKey'>
 
-export function getClient({ apiKey }: ClientConfig) {
-  const { adminUrl } = getConfig()
+export function getClient({ adminUrl, apiKey }: ClientConfig) {
   const client = new GraphQLClient(adminUrl, { headers: { Authorization: `Bearer ${apiKey}` } })
 
   return {

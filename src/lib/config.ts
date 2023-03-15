@@ -1,5 +1,6 @@
 import { ADMIN_URL } from './constants.js'
 import { BuildEnv, Env, LogLevel } from './types.js'
+import { isValidUrl } from './util.js'
 
 function getProjectId(apiUrl: string) {
   return apiUrl.match(/project\/([a-z0-9-]+)/)?.[1]
@@ -127,10 +128,14 @@ export function getBuildEnv(env: Env): BuildEnv | undefined {
   return
 }
 
-export type CoreConfig = Required<Pick<Config, 'apiKey' | 'env' | 'projectId'>>
+export type CoreConfig = Required<Pick<Config, 'adminUrl' | 'apiKey' | 'env' | 'projectId'>>
 
 export function ensureCoreConfig(): CoreConfig {
-  const { apiKey, env, projectId } = getConfig()
+  const { adminUrl, apiKey, env, projectId } = getConfig()
+
+  if (!isValidUrl(adminUrl)) {
+    throw new Error('Invalid adminUrl')
+  }
 
   if (!projectId) {
     throw new Error('No projectId found, check your API url')
@@ -140,5 +145,5 @@ export function ensureCoreConfig(): CoreConfig {
     throw new Error('No API key found')
   }
 
-  return { apiKey, env, projectId }
+  return { adminUrl, apiKey, env, projectId }
 }

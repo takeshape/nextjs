@@ -17,13 +17,13 @@ type Args = Record<string, never>
 
 export async function handler() {
   try {
-    const { apiKey, apiUrl, env } = getConfig()
+    const { adminUrl, apiKey, apiUrl, env } = getConfig()
 
     if (!apiKey) {
       return apiUrl
     }
 
-    const client = getClient({ apiKey })
+    const client = getClient({ adminUrl, apiKey })
 
     let branch: BranchWithUrl | undefined
 

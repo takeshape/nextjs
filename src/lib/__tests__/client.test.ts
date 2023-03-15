@@ -2,8 +2,9 @@ import { graphql } from 'msw'
 import { setupServer } from 'msw/node'
 import { afterAll, afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest'
 import { getClient } from '../client'
-import { DEVELOPMENT } from '../constants'
+import { ADMIN_URL, DEVELOPMENT } from '../constants'
 
+const adminUrl = ADMIN_URL
 const projectId = 'project-id'
 const apiKey = 'api-key'
 const branchName = 'my_branch'
@@ -51,13 +52,13 @@ afterEach(() => {
 })
 
 test('getBranch', async () => {
-  const client = getClient({ apiKey })
+  const client = getClient({ adminUrl, apiKey })
   const branch = await client.getBranch({ projectId, environment: DEVELOPMENT, branchName })
   expect(branch).toEqual({ branchName, graphqlUrl })
 })
 
 test('tagBranch', async () => {
-  const client = getClient({ apiKey })
+  const client = getClient({ adminUrl, apiKey })
   const branch = await client.tagBranch({
     input: { projectId, environment: DEVELOPMENT, branchName, tagName: 'abc123' },
   })
@@ -65,7 +66,7 @@ test('tagBranch', async () => {
 })
 
 test('createBranch', async () => {
-  const client = getClient({ apiKey })
+  const client = getClient({ adminUrl, apiKey })
   const branch = await client.createBranch({
     input: { projectId, branchName: 'foo', environment: DEVELOPMENT },
   })
@@ -73,7 +74,7 @@ test('createBranch', async () => {
 })
 
 test('createBranch - throws', async () => {
-  const client = getClient({ apiKey })
+  const client = getClient({ adminUrl, apiKey })
   await expect(() =>
     client.createBranch({
       input: { projectId, environment: DEVELOPMENT, branchName: 'duplicate' },

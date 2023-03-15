@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { getBranchForLocal, tagBranchForBuild } from '../../lib/branches'
 import { Config, getConfig } from '../../lib/config'
-import { DEVELOPMENT } from '../../lib/constants'
+import { ADMIN_URL, DEVELOPMENT } from '../../lib/constants'
 import { BranchWithUrl } from '../../lib/types'
 import { handler as getBranchUrl } from '../getBranchUrl'
 
@@ -18,6 +18,7 @@ describe('getBranchUrl', () => {
     graphqlUrl: 'https://api.takeshape.io/graphql',
   }
 
+  const adminUrl = ADMIN_URL
   const projectId = 'project-id'
   const env = 'local'
   const apiKey = 'api-key'
@@ -33,6 +34,7 @@ describe('getBranchUrl', () => {
 
   function mockConfig(config: Partial<Config>) {
     vi.mocked(getConfig).mockReturnValueOnce({
+      adminUrl,
       apiKey,
       env,
       apiUrl,
