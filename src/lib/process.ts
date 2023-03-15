@@ -1,21 +1,17 @@
 import { getBranchForLocal, tagBranchForBuild } from './branches.js'
 import { getClient } from './client.js'
-import { getConfig } from './config.js'
+import { ensureCoreConfig, getConfig } from './config.js'
 import { log } from './log.js'
 
 export async function setProcessBranchUrl(
   { envVar } = { envVar: 'NEXT_PUBLIC_BRANCH_TAKESHAPE_API_URL' },
 ): Promise<string | undefined> {
-  const { apiKey, apiUrl, env } = getConfig()
-
-  if (!apiKey) {
-    log.error('No API key found')
-    return
-  }
+  const { adminUrl, apiKey, env } = ensureCoreConfig()
+  const { apiUrl } = getConfig()
 
   log.info('Getting branch url...')
 
-  const client = getClient({ apiKey })
+  const client = getClient({ adminUrl, apiKey })
 
   let branch
 
@@ -39,6 +35,8 @@ export async function setProcessBranchUrl(
     log.info(`Using default API URL`)
     branchUrl = apiUrl
   }
+
+  log.debug('Branch URL', branchUrl)
 
   if (branchUrl) {
     process.env[envVar] = branchUrl
