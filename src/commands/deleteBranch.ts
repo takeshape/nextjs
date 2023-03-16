@@ -20,7 +20,7 @@ export async function handler({ name }: Args) {
     let branchName: string | undefined
 
     if (name) {
-      log.debug('Using user-provided --name', name)
+      log.debug('Using name', name)
       branchName = name
     } else if (gitCommitRef) {
       log.debug('Using found gitCommitRef', gitCommitRef)

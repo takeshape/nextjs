@@ -70,7 +70,7 @@ export async function handler({ name, tty }: Args) {
       return
     }
 
-    return promoteBranch({ name, lookupPr: false, productionOnly: false })
+    return promoteBranch({ name: branchName, lookupPr: false, productionOnly: false })
   } catch (error) {
     log.debug(error)
 

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Client, getClient } from '../../lib/client'
 import { ensureCoreConfig } from '../../lib/config'
-import { DEVELOPMENT } from '../../lib/constants'
+import { ADMIN_URL, DEVELOPMENT } from '../../lib/constants'
 import { log } from '../../lib/log'
 import { getCommitInfo, isDefaultBranch } from '../../lib/repo'
 import { BranchWithUrl } from '../../lib/types'
@@ -34,17 +34,19 @@ describe('createBranch', () => {
   const projectId = 'project-id'
   const env = 'local'
   const apiKey = 'api-key'
+  const adminUrl = ADMIN_URL
 
   beforeEach(() => {
     vi.resetModules()
     vi.mocked(ensureCoreConfig).mockReturnValueOnce({
+      adminUrl,
       apiKey,
       env,
       projectId,
     })
     vi.mocked(getCommitInfo).mockResolvedValue(commitInfo)
     vi.mocked(isDefaultBranch).mockReturnValue(false)
-    client = getClient({ apiKey })
+    client = getClient({ adminUrl, apiKey })
   })
 
   afterEach(() => {
@@ -57,7 +59,7 @@ describe('createBranch', () => {
 
     await createBranch({ name: branchName })
 
-    expect(log.debug).toHaveBeenCalledWith('Using user-provided --name', branchName)
+    expect(log.debug).toHaveBeenCalledWith('Using name', branchName)
     expect(log.debug).toHaveBeenCalledWith('Proceeding with branchName:', branchName)
     expect(log.info).toHaveBeenCalledWith('Creating API branch...')
     expect(isDefaultBranch).toHaveBeenCalledWith(branchName)

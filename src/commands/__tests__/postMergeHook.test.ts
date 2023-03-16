@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Client, getClient } from '../../lib/client'
-import { Config, CoreConfig, ensureCoreConfig, getConfig } from '../../lib/config'
-import { DEVELOPMENT } from '../../lib/constants'
-import { isDefaultBranch } from '../../lib/repo'
+import { Config, ensureCoreConfig, getConfig } from '../../lib/config'
+import { ADMIN_URL, DEVELOPMENT } from '../../lib/constants'
+import { getMergedBranchName, isDefaultBranch } from '../../lib/repo'
 import { BranchWithLatestVersion } from '../../lib/types'
 import { handler as postMergeHook } from '../postMergeHook'
 import { handler as promoteBranch } from '../promoteBranch'
@@ -30,12 +30,14 @@ describe('postMergeHook', () => {
     const projectId = 'project-id'
     const env = 'local'
     const apiKey = 'api-key'
+    const adminUrl = ADMIN_URL
 
     vi.mocked(ensureCoreConfig).mockReturnValueOnce({
+      adminUrl,
       apiKey,
       env,
       projectId,
-    } as CoreConfig)
+    })
 
     vi.mocked(getConfig).mockReturnValueOnce({
       noTtyShouldPromoteBranch: true,
@@ -43,7 +45,7 @@ describe('postMergeHook', () => {
 
     vi.mocked(isDefaultBranch).mockReturnValueOnce(false)
 
-    client = getClient({ apiKey })
+    client = getClient({ adminUrl, apiKey })
   })
 
   afterEach(() => {
@@ -54,6 +56,19 @@ describe('postMergeHook', () => {
     vi.mocked(client.getBranch).mockResolvedValueOnce(branch)
 
     await postMergeHook({ name: branchName, tty: false })
+
+    expect(promoteBranch).toHaveBeenCalledWith({
+      name: branchName,
+      lookupPr: false,
+      productionOnly: false,
+    })
+  })
+
+  it('can merge an api branch using a name from the repo log', async () => {
+    vi.mocked(client.getBranch).mockResolvedValueOnce(branch)
+    vi.mocked(getMergedBranchName).mockResolvedValueOnce(branchName)
+
+    await postMergeHook({ tty: false })
 
     expect(promoteBranch).toHaveBeenCalledWith({
       name: branchName,

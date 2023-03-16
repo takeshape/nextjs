@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Client, getClient } from '../../lib/client'
 import { Config, ensureCoreConfig, getBuildEnv, getConfig } from '../../lib/config'
-import { DEVELOPMENT, PRODUCTION } from '../../lib/constants'
+import { ADMIN_URL, DEVELOPMENT, PRODUCTION } from '../../lib/constants'
 import { getHeadRefFromCommitPullsList } from '../../lib/github'
 import { log } from '../../lib/log'
 import { getCommitInfo, isDefaultBranch } from '../../lib/repo'
@@ -43,11 +43,13 @@ describe('promoteBranch', () => {
   const projectId = 'project-id'
   const env = 'local'
   const apiKey = 'api-key'
+  const adminUrl = ADMIN_URL
 
   beforeEach(() => {
     vi.resetModules()
     vi.mocked(getConfig).mockReturnValue({ githubToken: 'token' } as Config)
     vi.mocked(ensureCoreConfig).mockReturnValueOnce({
+      adminUrl,
       apiKey,
       env,
       projectId,
@@ -55,7 +57,7 @@ describe('promoteBranch', () => {
     vi.mocked(getCommitInfo).mockResolvedValue(commitInfo)
     vi.mocked(isDefaultBranch).mockReturnValue(false)
 
-    client = getClient({ apiKey })
+    client = getClient({ adminUrl, apiKey })
   })
 
   afterEach(() => {
@@ -83,7 +85,7 @@ describe('promoteBranch', () => {
 
     await promoteBranch({ productionOnly: false, lookupPr: true })
 
-    expect(log.debug).toHaveBeenCalledWith(`Using --lookup-pr`, {
+    expect(log.debug).toHaveBeenCalledWith(`Using lookupPr`, {
       ...commitInfo,
       gitCommitSha: undefined,
     })
@@ -95,7 +97,7 @@ describe('promoteBranch', () => {
 
     await promoteBranch({ productionOnly: false, lookupPr: true })
 
-    expect(log.debug).toHaveBeenCalledWith(`Using --lookup-pr`, commitInfo)
+    expect(log.debug).toHaveBeenCalledWith(`Using lookupPr`, commitInfo)
     expect(log.error).toHaveBeenCalledWith(`Could not find a PR ref`)
   })
 
@@ -125,7 +127,7 @@ describe('promoteBranch', () => {
 
     await promoteBranch({ productionOnly: false, lookupPr: true })
 
-    expect(log.debug).toHaveBeenCalledWith(`Using --lookup-pr`, commitInfo)
+    expect(log.debug).toHaveBeenCalledWith(`Using lookupPr`, commitInfo)
     expect(log.debug).toHaveBeenCalledWith(`Proceeding with branchName:`, branchName)
     expect(log.info).toHaveBeenCalledWith('Promoting API branch...')
 
@@ -181,7 +183,7 @@ describe('promoteBranch', () => {
 
     await promoteBranch({ name: branchName, productionOnly: false, lookupPr: false })
 
-    expect(log.debug).toHaveBeenCalledWith(`Using user-provided --name`, branchName)
+    expect(log.debug).toHaveBeenCalledWith(`Using name`, branchName)
     expect(log.debug).toHaveBeenCalledWith(`Proceeding with branchName:`, branchName)
     expect(log.info).toHaveBeenCalledWith('Promoting API branch...')
     expect(log.info).toHaveBeenCalledWith(`No API branches were promoted`)
