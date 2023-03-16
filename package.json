@@ -24,7 +24,8 @@
     "format": "eslint src --fix",
     "prepare": "npm run build",
     "release": "np --no-publish",
-    "test": "npm run format && vitest run",
+    "test": "npm run format && npm run typecheck && vitest run",
+    "typecheck": "tsc --noEmit",
     "watch": "vitest"
   },
   "prettier": {
