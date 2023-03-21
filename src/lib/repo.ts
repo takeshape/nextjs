@@ -117,8 +117,18 @@ export async function getMergedBranchName() {
     return
   }
 
-  // e.g., 5d16682 HEAD@{0}: merge my_branch: Fast-forward
+  // e.g.,
+  // -> 5d16682 HEAD@{0}: merge my_branch: Fast-forward
   const reflogMessage = await git.raw(['reflog', '-1'])
-  // e.g., my_branch
-  return reflogMessage.split(' ')[3]?.replace(/:$/, '')
+  // e.g.,
+  // -> ['5d16682 HEAD@{0}', ' merge my_branch', ' Fast-forward']
+  // -> ' merge my_branch'
+  const actionMessage = reflogMessage.split(':')[1]
+  if (actionMessage?.startsWith(' merge ')) {
+    // e.g.,
+    // -> my_branch
+    return actionMessage.replace(/ merge /, '')
+  }
+
+  return
 }
