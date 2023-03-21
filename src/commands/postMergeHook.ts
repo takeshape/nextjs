@@ -3,7 +3,7 @@
 import inquirer from 'inquirer'
 import { CommandModule } from 'yargs'
 import { getClient } from '../lib/client.js'
-import { ensureCoreConfig, getConfig } from '../lib/config.js'
+import { ensureCoreConfig } from '../lib/config.js'
 import { DEVELOPMENT } from '../lib/constants.js'
 import { log, logPrefix } from '../lib/log.js'
 import { getMergedBranchName, isDefaultBranch } from '../lib/repo.js'
@@ -15,10 +15,10 @@ type Args = {
   tty: boolean
 }
 
-export async function handler({ name, tty }: Args) {
+export async function handler({ name, ...flags }: Args) {
   try {
-    const { adminUrl, apiKey, projectId } = ensureCoreConfig()
-    const { noTtyShouldPromoteBranch, promptPromoteBranch } = getConfig()
+    const { adminUrl, apiKey, projectId, noTtyShouldPromoteBranch, promptPromoteBranch, tty } =
+      ensureCoreConfig({ flags })
 
     const mergedBranchName = name ?? (await getMergedBranchName())
 
@@ -96,6 +96,11 @@ export const postMergeHook: CommandModule<unknown, Args> = {
       type: 'boolean',
       demand: false,
       default: isInteractive(),
+    },
+    debug: {
+      describe: 'Provide debug logging',
+      type: 'boolean',
+      demand: false,
     },
   },
   handler,

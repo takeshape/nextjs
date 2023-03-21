@@ -9,12 +9,13 @@ import { fatal } from '../lib/process.js'
 import { getCommitInfo, isDefaultBranch } from '../lib/repo.js'
 
 type Args = {
+  debug?: boolean
   name?: string
 }
 
-export async function handler({ name }: Args) {
+export async function handler({ name, ...flags }: Args) {
   try {
-    const { adminUrl, apiKey, env, projectId } = ensureCoreConfig()
+    const { adminUrl, apiKey, env, projectId } = ensureCoreConfig({ flags })
     const { gitCommitRef } = await getCommitInfo(env)
 
     let branchName: string | undefined
@@ -68,6 +69,11 @@ export const deleteBranch: CommandModule<unknown, Args> = {
     name: {
       describe: 'A specific branch name to use, instead of finding a value from your env',
       type: 'string',
+      demand: false,
+    },
+    debug: {
+      describe: 'Provide debug logging',
+      type: 'boolean',
       demand: false,
     },
   },

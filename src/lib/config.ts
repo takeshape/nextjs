@@ -1,6 +1,6 @@
 import { ADMIN_URL } from './constants.js'
 import { BuildEnv, Env, LogLevel } from './types.js'
-import { isValidUrl } from './util.js'
+import { isInteractive, isValidUrl } from './util.js'
 
 function getProjectId(apiUrl: string) {
   return apiUrl.match(/project\/([a-z0-9-]+)/)?.[1]
@@ -29,25 +29,35 @@ export type Config = {
   env: Env
   githubToken?: string
   logLevel: LogLevel
-  promptCreateBranch: boolean
-  promptPromoteBranch: boolean
   noTtyShouldCreateBranch: boolean
   noTtyShouldPromoteBranch: boolean
+  promptCreateBranch: boolean
+  promptPromoteBranch: boolean
   projectId?: string
+  tty: boolean
+}
+
+export type ConfigOptions = {
+  flags?: {
+    debug?: boolean
+    tty?: boolean
+  }
 }
 
 let config: Config
 
-export function getConfig() {
+export function getConfig(options: ConfigOptions = {}) {
   if (config) {
     return config
   }
+
+  const { flags } = options
 
   const adminUrl = process.env['SHAPE_ADMIN_URL'] ?? ADMIN_URL
   const apiKey = process.env['SHAPE_API_KEY'] ?? process.env['TAKESHAPE_API_KEY']
   const apiUrl = process.env['SHAPE_API_URL'] ?? process.env['NEXT_PUBLIC_TAKESHAPE_API_URL']
   const projectId = apiUrl && getProjectId(apiUrl)
-  const logLevel = getLogLevel(process.env['SHAPE_LOG_LEVEL'])
+  const logLevel = flags?.debug ? getLogLevel('debug') : getLogLevel(process.env['SHAPE_LOG_LEVEL'])
   const githubToken = process.env['SHAPE_GITHUB_TOKEN'] ?? process.env['GITHUB_TOKEN']
 
   const rawNoTtyShouldCreateBranch = process.env['NO_TTY_SHOULD_CREATE_BRANCH']
@@ -91,11 +101,12 @@ export function getConfig() {
     env,
     githubToken,
     logLevel,
-    promptCreateBranch,
-    promptPromoteBranch,
     noTtyShouldCreateBranch,
     noTtyShouldPromoteBranch,
     projectId,
+    promptCreateBranch,
+    promptPromoteBranch,
+    tty: flags?.tty ?? isInteractive(),
   }
 
   return config
@@ -128,10 +139,11 @@ export function getBuildEnv(env: Env): BuildEnv | undefined {
   return
 }
 
-export type CoreConfig = Required<Pick<Config, 'adminUrl' | 'apiKey' | 'env' | 'projectId'>>
+export type CoreConfig = Config &
+  Required<Pick<Config, 'adminUrl' | 'apiKey' | 'env' | 'projectId'>>
 
-export function ensureCoreConfig(): CoreConfig {
-  const { adminUrl, apiKey, env, projectId } = getConfig()
+export function ensureCoreConfig(options: ConfigOptions = {}): CoreConfig {
+  const { adminUrl, apiKey, env, projectId, ...config } = getConfig(options)
 
   if (!isValidUrl(adminUrl)) {
     throw new Error('Invalid adminUrl')
@@ -145,5 +157,5 @@ export function ensureCoreConfig(): CoreConfig {
     throw new Error('No API key found')
   }
 
-  return { adminUrl, apiKey, env, projectId }
+  return { ...config, adminUrl, apiKey, env, projectId }
 }

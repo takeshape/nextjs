@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Client, getClient } from '../../lib/client'
-import { Config, ensureCoreConfig, getConfig } from '../../lib/config'
+import { ConfigOptions, CoreConfig, ensureCoreConfig } from '../../lib/config'
 import { ADMIN_URL, DEVELOPMENT } from '../../lib/constants'
 import { getMergedBranchName, isDefaultBranch } from '../../lib/repo'
 import { BranchWithLatestVersion } from '../../lib/types'
@@ -32,16 +32,17 @@ describe('postMergeHook', () => {
     const apiKey = 'api-key'
     const adminUrl = ADMIN_URL
 
-    vi.mocked(ensureCoreConfig).mockReturnValueOnce({
-      adminUrl,
-      apiKey,
-      env,
-      projectId,
+    vi.mocked(ensureCoreConfig).mockImplementationOnce(({ flags }: ConfigOptions = {}) => {
+      return {
+        adminUrl,
+        apiKey,
+        env,
+        githubToken: 'token',
+        noTtyShouldPromoteBranch: true,
+        projectId,
+        ...flags,
+      } as CoreConfig
     })
-
-    vi.mocked(getConfig).mockReturnValueOnce({
-      noTtyShouldPromoteBranch: true,
-    } as Config)
 
     vi.mocked(isDefaultBranch).mockReturnValueOnce(false)
 

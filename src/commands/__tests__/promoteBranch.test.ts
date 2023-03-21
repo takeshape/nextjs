@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Client, getClient } from '../../lib/client'
-import { Config, ensureCoreConfig, getBuildEnv, getConfig } from '../../lib/config'
+import { ConfigOptions, CoreConfig, ensureCoreConfig, getBuildEnv } from '../../lib/config'
 import { ADMIN_URL, DEVELOPMENT, PRODUCTION } from '../../lib/constants'
 import { getHeadRefFromCommitPullsList } from '../../lib/github'
 import { log } from '../../lib/log'
@@ -47,13 +47,19 @@ describe('promoteBranch', () => {
 
   beforeEach(() => {
     vi.resetModules()
-    vi.mocked(getConfig).mockReturnValue({ githubToken: 'token' } as Config)
-    vi.mocked(ensureCoreConfig).mockReturnValueOnce({
-      adminUrl,
-      apiKey,
-      env,
-      projectId,
+
+    vi.mocked(ensureCoreConfig).mockImplementationOnce(({ flags }: ConfigOptions = {}) => {
+      return {
+        adminUrl,
+        apiKey,
+        env,
+        githubToken: 'token',
+        noTtyShouldPromoteBranch: true,
+        projectId,
+        ...flags,
+      } as CoreConfig
     })
+
     vi.mocked(getCommitInfo).mockResolvedValue(commitInfo)
     vi.mocked(isDefaultBranch).mockReturnValue(false)
 

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Config, getConfig } from '../../lib/config'
+import { Config, ConfigOptions, getConfig } from '../../lib/config'
 import { handler as createBranch } from '../createBranch'
 import { handler as postCheckoutHook } from '../postCheckoutHook'
 
@@ -11,9 +11,12 @@ vi.mock('../../lib/client.js')
 describe('postCheckoutHook', () => {
   beforeEach(() => {
     vi.resetModules()
-    vi.mocked(getConfig).mockReturnValueOnce({
-      noTtyShouldCreateBranch: true,
-    } as Config)
+    vi.mocked(getConfig).mockImplementationOnce(({ flags }: ConfigOptions = {}) => {
+      return {
+        noTtyShouldCreateBranch: true,
+        ...flags,
+      } as Config
+    })
   })
 
   afterEach(() => {

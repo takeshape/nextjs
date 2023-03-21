@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Client, getClient } from '../../lib/client'
-import { ensureCoreConfig } from '../../lib/config'
+import { ConfigOptions, CoreConfig, ensureCoreConfig } from '../../lib/config'
 import { ADMIN_URL, DEVELOPMENT } from '../../lib/constants'
 import { log } from '../../lib/log'
 import { getCommitInfo, isDefaultBranch } from '../../lib/repo'
@@ -38,11 +38,14 @@ describe('deleteBranch', () => {
 
   beforeEach(() => {
     vi.resetModules()
-    vi.mocked(ensureCoreConfig).mockReturnValueOnce({
-      adminUrl,
-      apiKey,
-      env,
-      projectId,
+    vi.mocked(ensureCoreConfig).mockImplementationOnce(({ flags }: ConfigOptions = {}) => {
+      return {
+        adminUrl,
+        apiKey,
+        env,
+        projectId,
+        ...flags,
+      } as CoreConfig
     })
     vi.mocked(getCommitInfo).mockResolvedValue(commitInfo)
     vi.mocked(isDefaultBranch).mockReturnValue(false)

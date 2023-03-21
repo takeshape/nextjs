@@ -8,13 +8,14 @@ import { isInteractive } from '../lib/util.js'
 import { handler as createBranch } from './createBranch.js'
 
 type Args = {
+  debug?: boolean
   name?: string
   tty: boolean
 }
 
-export async function handler({ name, tty }: Args) {
+export async function handler({ name, ...flags }: Args) {
   try {
-    const { noTtyShouldCreateBranch, promptCreateBranch } = getConfig()
+    const { noTtyShouldCreateBranch, promptCreateBranch, tty } = getConfig({ flags })
 
     let shouldCreateBranch = noTtyShouldCreateBranch
 
@@ -63,6 +64,11 @@ export const postCheckoutHook: CommandModule<unknown, Args> = {
       type: 'boolean',
       demand: false,
       default: isInteractive(),
+    },
+    debug: {
+      describe: 'Provide debug logging',
+      type: 'boolean',
+      demand: false,
     },
   },
   handler,

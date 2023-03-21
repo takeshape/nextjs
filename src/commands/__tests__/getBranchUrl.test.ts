@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { getBranchForLocal, tagBranchForBuild } from '../../lib/branches'
-import { Config, getConfig } from '../../lib/config'
+import { Config, ConfigOptions, getConfig } from '../../lib/config'
 import { ADMIN_URL, DEVELOPMENT } from '../../lib/constants'
 import { BranchWithUrl } from '../../lib/types'
 import { handler as getBranchUrl } from '../getBranchUrl'
@@ -33,21 +33,24 @@ describe('getBranchUrl', () => {
   })
 
   function mockConfig(config: Partial<Config>) {
-    vi.mocked(getConfig).mockReturnValueOnce({
-      adminUrl,
-      apiKey,
-      env,
-      apiUrl,
-      projectId,
-      ...config,
-    } as Config)
+    vi.mocked(getConfig).mockImplementationOnce(({ flags }: ConfigOptions = {}) => {
+      return {
+        adminUrl,
+        apiKey,
+        env,
+        apiUrl,
+        projectId,
+        ...flags,
+        ...config,
+      } as Config
+    })
   }
 
   it('gets a branch in the local env', async () => {
     mockConfig({})
     vi.mocked(getBranchForLocal).mockResolvedValueOnce(branch)
 
-    const branchUrl = await getBranchUrl()
+    const branchUrl = await getBranchUrl({})
 
     expect(branchUrl).toEqual(branch.graphqlUrl)
     expect(getBranchForLocal).toHaveBeenCalled()
@@ -57,7 +60,7 @@ describe('getBranchUrl', () => {
     mockConfig({ env: 'vercel' })
     vi.mocked(tagBranchForBuild).mockResolvedValueOnce(branch)
 
-    const branchUrl = await getBranchUrl()
+    const branchUrl = await getBranchUrl({})
 
     expect(branchUrl).toEqual(branch.graphqlUrl)
     expect(tagBranchForBuild).toHaveBeenCalled()
@@ -67,7 +70,7 @@ describe('getBranchUrl', () => {
     mockConfig({})
     vi.mocked(getBranchForLocal).mockResolvedValueOnce(undefined)
 
-    const branchUrl = await getBranchUrl()
+    const branchUrl = await getBranchUrl({})
 
     expect(branchUrl).toEqual(apiUrl)
     expect(getBranchForLocal).toHaveBeenCalled()
@@ -76,7 +79,7 @@ describe('getBranchUrl', () => {
   it('returns the apiUrl when there is no apiKey', async () => {
     mockConfig({ apiKey: undefined })
 
-    const branchUrl = await getBranchUrl()
+    const branchUrl = await getBranchUrl({})
 
     expect(branchUrl).toEqual(apiUrl)
   })

@@ -4,9 +4,14 @@ import inquirer from 'inquirer'
 import fs from 'node:fs'
 import fsp from 'node:fs/promises'
 import { CommandModule } from 'yargs'
+import { getConfig } from '../lib/config.js'
 import { log } from '../lib/log.js'
+import { isInteractive } from '../lib/util.js'
 
-type Args = Record<string, never>
+type Args = {
+  debug?: boolean
+  tty: boolean
+}
 
 const files = {
   env: {
@@ -53,8 +58,14 @@ const questions = [
   },
 ]
 
-export async function handler() {
-  const answers = await inquirer.prompt(questions)
+export async function handler(flags: Args) {
+  const { tty } = getConfig({ flags })
+
+  let answers: Record<string, boolean> = {}
+
+  if (tty) {
+    answers = await inquirer.prompt(questions)
+  }
 
   if (answers['overwriteEnvFile'] === true || answers['overwriteEnvFile'] === undefined) {
     log.info('Creating new .env file')
@@ -75,5 +86,18 @@ export async function handler() {
 export const prepareEnv: CommandModule<unknown, Args> = {
   command: 'prepare-env',
   describe: 'Prepare the .env files for your project',
+  builder: {
+    tty: {
+      describe: 'Does your terminal have tty support?',
+      type: 'boolean',
+      demand: false,
+      default: isInteractive(),
+    },
+    debug: {
+      describe: 'Provide debug logging',
+      type: 'boolean',
+      demand: false,
+    },
+  },
   handler,
 }

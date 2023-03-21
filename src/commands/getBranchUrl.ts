@@ -13,11 +13,13 @@ import { getConfig } from '../lib/config.js'
 import { log } from '../lib/log.js'
 import { BranchWithUrl } from '../lib/types.js'
 
-type Args = Record<string, never>
+type Args = {
+  debug?: boolean
+}
 
-export async function handler() {
+export async function handler(flags: Args) {
   try {
-    const { adminUrl, apiKey, apiUrl, env } = getConfig()
+    const { adminUrl, apiKey, apiUrl, env } = getConfig({ flags })
 
     if (!apiKey) {
       return apiUrl
@@ -43,8 +45,15 @@ export async function handler() {
 export const getBranchUrl: CommandModule<unknown, Args> = {
   command: 'get-branch-url',
   describe: 'Get the URL for an API branch',
-  async handler() {
-    const branchUrl = await handler()
+  builder: {
+    debug: {
+      describe: 'Provide debug logging',
+      type: 'boolean',
+      demand: false,
+    },
+  },
+  async handler(flags) {
+    const branchUrl = await handler(flags)
     // eslint-disable-next-line no-console
     console.log(branchUrl)
   },

@@ -3,7 +3,7 @@
 import { Octokit } from 'octokit'
 import { CommandModule } from 'yargs'
 import { getClient } from '../lib/client.js'
-import { ensureCoreConfig, getBuildEnv, getConfig } from '../lib/config.js'
+import { ensureCoreConfig, getBuildEnv } from '../lib/config.js'
 import { DEVELOPMENT, PRODUCTION } from '../lib/constants.js'
 import { getHeadRefFromCommitPullsList } from '../lib/github.js'
 import { log } from '../lib/log.js'
@@ -11,15 +11,15 @@ import { fatal } from '../lib/process.js'
 import { getCommitInfo, isDefaultBranch } from '../lib/repo.js'
 
 type Args = {
+  debug?: boolean
   name?: string
   lookupPr: boolean
   productionOnly: boolean
 }
 
-export async function handler({ name, lookupPr, productionOnly }: Args) {
+export async function handler({ name, lookupPr, productionOnly, ...flags }: Args) {
   try {
-    const { adminUrl, apiKey, env, projectId } = ensureCoreConfig()
-    const { githubToken } = getConfig()
+    const { adminUrl, apiKey, env, githubToken, projectId } = ensureCoreConfig({ flags })
 
     if (productionOnly && getBuildEnv(env) !== 'production') {
       log.info(`Not a 'production' environment, skipping`)
@@ -141,6 +141,11 @@ export const promoteBranch: CommandModule<unknown, Args> = {
         type: 'boolean',
         demand: false,
         default: true,
+      })
+      .option('debug', {
+        describe: 'Provide debug logging',
+        type: 'boolean',
+        demand: false,
       })
       .conflicts('name', 'lookupPr')
   },
