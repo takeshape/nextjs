@@ -89,7 +89,7 @@ describe('promoteBranch', () => {
       ...commitInfo,
       gitCommitSha: undefined,
     })
-    expect(log.error).toHaveBeenCalledWith(`Insufficient info to find a PR ref`)
+    expect(log.error).toHaveBeenCalledWith(`Insufficient info to find a pull request branch`)
   })
 
   it('looks up a pr but cannot find a ref', async () => {
@@ -98,7 +98,7 @@ describe('promoteBranch', () => {
     await promoteBranch({ productionOnly: false, lookupPr: true })
 
     expect(log.debug).toHaveBeenCalledWith(`Using lookupPr`, commitInfo)
-    expect(log.error).toHaveBeenCalledWith(`Could not find a PR ref`)
+    expect(log.error).toHaveBeenCalledWith(`Could not find an associated pull request branch`)
   })
 
   it('looks up a pr and uses the head ref as the branchName and then promotes it', async () => {
