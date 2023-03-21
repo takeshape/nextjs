@@ -49,7 +49,8 @@ export async function handler({ name, lookupPr, nofail, productionOnly, ...flags
         )
 
         if (!headRef) {
-          throw new Error('Could not find an associated pull request branch')
+          log.info('No associated pull request branch found')
+          return
         }
 
         branchName = headRef

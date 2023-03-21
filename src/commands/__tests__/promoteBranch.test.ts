@@ -104,7 +104,7 @@ describe('promoteBranch', () => {
     await promoteBranch({ productionOnly: false, lookupPr: true })
 
     expect(log.debug).toHaveBeenCalledWith(`Using lookupPr`, commitInfo)
-    expect(log.error).toHaveBeenCalledWith(`Could not find an associated pull request branch`)
+    expect(log.info).toHaveBeenCalledWith(`No associated pull request branch found`)
   })
 
   it('looks up a pr and uses the head ref as the branchName and then promotes it', async () => {
