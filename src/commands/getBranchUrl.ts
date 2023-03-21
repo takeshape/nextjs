@@ -18,9 +18,9 @@ type Args = {
 }
 
 export async function handler(flags: Args) {
-  try {
-    const { adminUrl, apiKey, apiUrl, env } = getConfig({ flags })
+  const { adminUrl, apiKey, apiUrl, env } = getConfig({ flags })
 
+  try {
     if (!apiKey) {
       return apiUrl
     }
@@ -38,7 +38,7 @@ export async function handler(flags: Args) {
     return branch?.graphqlUrl ?? apiUrl
   } catch (error) {
     log.debug(error)
-    return
+    return apiUrl
   }
 }
 

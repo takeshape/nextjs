@@ -44,7 +44,7 @@ You can use the `shape` binary with the following commands:
 - `shape post-merge-hook` - Run the git `post-merge` hook branch promote prompt
 - `shape create-branch` - Create a branch using `--name` or repo lookup
 - `shape delete-branch` - Delete a branch using `--name` or repo lookup
-- `shape promote-branch` - Promote a branch using `--name`, repo lookup, or the `--lookup-pr` flag which will search GitHub for a PR that matches the sha.
+- `shape promote-branch` - Promote a branch using `--name`, repo lookup, or the `--lookup-pr` flag which will search GitHub for a PR that matches the sha. Also supports `--lookup-pr` which will attempt to find a branch from a merged PR on GitHub, and `--nofail` which will ensure a clean exit code.
 - `shape prepare-env` - Prepare various `.env` files using `-example` source files in the repo.
 
 Some functions are also exported:

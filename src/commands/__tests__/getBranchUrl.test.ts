@@ -83,4 +83,14 @@ describe('getBranchUrl', () => {
 
     expect(branchUrl).toEqual(apiUrl)
   })
+
+  it('returns the apiUrl when there is an error', async () => {
+    mockConfig({})
+
+    vi.mocked(getBranchForLocal).mockRejectedValueOnce('error')
+
+    const branchUrl = await getBranchUrl({})
+
+    expect(branchUrl).toEqual(apiUrl)
+  })
 })
