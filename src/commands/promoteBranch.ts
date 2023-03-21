@@ -12,12 +12,13 @@ import { getCommitInfo, isDefaultBranch } from '../lib/repo.js'
 
 type Args = {
   debug?: boolean
-  name?: string
   lookupPr: boolean
+  name?: string
+  nofail?: boolean
   productionOnly: boolean
 }
 
-export async function handler({ name, lookupPr, productionOnly, ...flags }: Args) {
+export async function handler({ name, lookupPr, nofail, productionOnly, ...flags }: Args) {
   try {
     const { adminUrl, apiKey, env, githubToken, projectId } = ensureCoreConfig({ flags })
 
@@ -114,7 +115,7 @@ export async function handler({ name, lookupPr, productionOnly, ...flags }: Args
       log.error(error.message)
     }
 
-    fatal()
+    fatal(nofail ? 0 : 1)
   }
 }
 
@@ -141,6 +142,11 @@ export const promoteBranch: CommandModule<unknown, Args> = {
         type: 'boolean',
         demand: false,
         default: true,
+      })
+      .option('nofail', {
+        describe: 'Always exit normally',
+        type: 'boolean',
+        demand: false,
       })
       .option('debug', {
         describe: 'Provide debug logging',

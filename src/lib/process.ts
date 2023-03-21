@@ -45,6 +45,6 @@ export async function setProcessBranchUrl(
   return branchUrl
 }
 
-export function fatal() {
-  process.exit(1)
+export function fatal(code = 1) {
+  process.exit(code)
 }
