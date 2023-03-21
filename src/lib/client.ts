@@ -10,6 +10,7 @@ import {
   DevelopmentBranch,
   DevelopmentBranchWithUrl,
 } from './types.js'
+import { dump } from './util.js'
 
 type GetBranchQueryPayload = {
   result: BranchWithLatestVersion
@@ -154,14 +155,14 @@ export function getClient({ adminUrl, apiKey }: ClientConfig) {
       }
 
       try {
-        log.debug('getBranch', { variables })
+        log.debug('getBranch', dump({ variables }))
 
         const { result } = await client.request<GetBranchQueryPayload, BranchArgs>(
           getBranchQuery,
           variables,
         )
 
-        log.debug('getBranch', { result })
+        log.debug('getBranch', dump({ result }))
 
         return result
       } catch (error) {
@@ -175,14 +176,14 @@ export function getClient({ adminUrl, apiKey }: ClientConfig) {
       }
 
       try {
-        log.debug('tagBranch', { variables })
+        log.debug('tagBranch', dump({ variables }))
 
         const { result } = await client.request<
           TagBranchMutationPayload,
           TagBranchMutationVariables
         >(tagBranchMutation, variables)
 
-        log.debug('tagBranch', { result })
+        log.debug('tagBranch', dump({ result }))
 
         return result
       } catch (error) {
@@ -197,14 +198,14 @@ export function getClient({ adminUrl, apiKey }: ClientConfig) {
       }
 
       try {
-        log.debug('createBranch', { variables })
+        log.debug('createBranch', dump({ variables }))
 
         const { result } = await client.request<
           CreateBranchMutationPayload,
           CreateBranchMutationVariables
         >(createBranchMutation, variables)
 
-        log.debug('createBranch', { result })
+        log.debug('createBranch', dump({ result }))
 
         return result
       } catch (error) {
@@ -218,14 +219,14 @@ export function getClient({ adminUrl, apiKey }: ClientConfig) {
       }
 
       try {
-        log.debug('deleteBranch', { variables })
+        log.debug('deleteBranch', dump({ variables }))
 
         const { result } = await client.request<
           DeleteBranchMutationPayload,
           DeleteBranchMutationVariables
         >(deleteBranchMutation, variables)
 
-        log.debug('deleteBranch', { result })
+        log.debug('deleteBranch', dump({ result }))
 
         return result
       } catch (error) {
@@ -239,14 +240,14 @@ export function getClient({ adminUrl, apiKey }: ClientConfig) {
       }
 
       try {
-        log.debug('mergeBranch', { variables })
+        log.debug('mergeBranch', dump({ variables }))
 
         const { result } = await client.request<
           MergeBranchMutationPayload,
           MergeBranchMutationVariables
         >(mergeBranchMutation, variables)
 
-        log.debug('mergeBranch', { result })
+        log.debug('mergeBranch', dump({ result }))
 
         return result
       } catch (error) {

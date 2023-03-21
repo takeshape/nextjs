@@ -10,3 +10,7 @@ export function isValidUrl(str: string) {
     return false
   }
 }
+
+export function dump(obj: any) {
+  JSON.stringify(obj, null, 2)
+}
