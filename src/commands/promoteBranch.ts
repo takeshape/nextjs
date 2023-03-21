@@ -48,12 +48,12 @@ export async function handler({ name, lookupPr, productionOnly }: Args) {
         )
 
         if (!headRef) {
-          throw new Error('Could not find a PR ref')
+          throw new Error('Could not find an associated pull request branch')
         }
 
         branchName = headRef
       } else {
-        throw new Error('Insufficient info to find a PR ref')
+        throw new Error('Insufficient info to find a pull request branch')
       }
     }
 
