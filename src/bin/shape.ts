@@ -5,6 +5,7 @@ import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
 import { createBranch } from '../commands/createBranch.js'
 import { deleteBranch } from '../commands/deleteBranch.js'
+import { getBranchUrl } from '../commands/getBranchUrl.js'
 import { postCheckoutHook } from '../commands/postCheckoutHook.js'
 import { postMergeHook } from '../commands/postMergeHook.js'
 import { prepareEnv } from '../commands/prepareEnv.js'
@@ -19,4 +20,5 @@ yargs(hideBin(process.argv))
   .command(promoteBranch)
   .command(postCheckoutHook)
   .command(postMergeHook)
+  .command(getBranchUrl)
   .command(prepareEnv).argv
