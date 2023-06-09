@@ -5,6 +5,7 @@ import fs from 'node:fs'
 import fsp from 'node:fs/promises'
 import { CommandModule } from 'yargs'
 import { getConfig } from '../lib/config.js'
+import { runIfConfigured } from '../lib/handler.js'
 import { log } from '../lib/log.js'
 import { isInteractive } from '../lib/util.js'
 
@@ -99,5 +100,5 @@ export const prepareEnv: CommandModule<unknown, Args> = {
       demand: false,
     },
   },
-  handler,
+  handler: runIfConfigured<Args>(handler),
 }

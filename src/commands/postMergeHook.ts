@@ -5,6 +5,7 @@ import { CommandModule } from 'yargs'
 import { getClient } from '../lib/client.js'
 import { ensureCoreConfig } from '../lib/config.js'
 import { DEVELOPMENT } from '../lib/constants.js'
+import { runIfConfigured } from '../lib/handler.js'
 import { log, logPrefix } from '../lib/log.js'
 import { getMergedBranchName, isDefaultBranch } from '../lib/repo.js'
 import { isInteractive } from '../lib/util.js'
@@ -70,7 +71,7 @@ export async function handler({ name, ...flags }: Args) {
       return
     }
 
-    return promoteBranch({ name: branchName, lookupPr: false, productionOnly: false })
+    promoteBranch({ name: branchName, lookupPr: false, productionOnly: false })
   } catch (error) {
     log.debug(error)
 
@@ -103,5 +104,5 @@ export const postMergeHook: CommandModule<unknown, Args> = {
       demand: false,
     },
   },
-  handler,
+  handler: runIfConfigured<Args>(handler),
 }

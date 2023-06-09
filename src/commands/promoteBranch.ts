@@ -6,6 +6,7 @@ import { getClient } from '../lib/client.js'
 import { ensureCoreConfig, getBuildEnv } from '../lib/config.js'
 import { DEVELOPMENT, PRODUCTION } from '../lib/constants.js'
 import { getHeadRefFromCommitPullsList } from '../lib/github.js'
+import { runIfConfigured } from '../lib/handler.js'
 import { log } from '../lib/log.js'
 import { fatal } from '../lib/process.js'
 import { getCommitInfo, isDefaultBranch } from '../lib/repo.js'
@@ -37,6 +38,10 @@ export async function handler({ name, lookupPr, nofail, productionOnly, ...flags
     }
 
     if (lookupPr) {
+      if (!githubToken) {
+        throw new Error('A GitHub token must be specified to lookup by PR')
+      }
+
       log.debug('Using lookupPr', { gitCommitRef, gitCommitSha, gitRepoName, gitRepoOwner })
 
       if (gitRepoOwner && gitRepoName && gitCommitSha) {
@@ -156,5 +161,5 @@ export const promoteBranch: CommandModule<unknown, Args> = {
       })
       .conflicts('name', 'lookupPr')
   },
-  handler,
+  handler: runIfConfigured<Args>(handler),
 }

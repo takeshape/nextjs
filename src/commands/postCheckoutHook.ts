@@ -3,6 +3,7 @@
 import inquirer from 'inquirer'
 import { CommandModule } from 'yargs'
 import { getConfig } from '../lib/config.js'
+import { runIfConfigured } from '../lib/handler.js'
 import { log, logPrefix } from '../lib/log.js'
 import { isInteractive } from '../lib/util.js'
 import { handler as createBranch } from './createBranch.js'
@@ -71,5 +72,5 @@ export const postCheckoutHook: CommandModule<unknown, Args> = {
       demand: false,
     },
   },
-  handler,
+  handler: runIfConfigured<Args>(handler),
 }

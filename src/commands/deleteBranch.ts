@@ -4,6 +4,7 @@ import { CommandModule } from 'yargs'
 import { getClient } from '../lib/client.js'
 import { ensureCoreConfig } from '../lib/config.js'
 import { DEVELOPMENT } from '../lib/constants.js'
+import { runIfConfigured } from '../lib/handler.js'
 import { log } from '../lib/log.js'
 import { fatal } from '../lib/process.js'
 import { getCommitInfo, isDefaultBranch } from '../lib/repo.js'
@@ -77,5 +78,5 @@ export const deleteBranch: CommandModule<unknown, Args> = {
       demand: false,
     },
   },
-  handler,
+  handler: runIfConfigured<Args>(handler),
 }
