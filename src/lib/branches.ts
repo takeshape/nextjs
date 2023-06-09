@@ -2,7 +2,7 @@ import { Client, TagBranchMutationVariables } from './client.js'
 import { getBuildEnv, getConfig } from './config.js'
 import { DEVELOPMENT, PRODUCTION } from './constants.js'
 import { getCommitInfo, isDefaultBranch } from './repo.js'
-import { BranchWithUrl } from './types.js'
+import { Branch, BranchWithUrl } from './types.js'
 
 export async function getBranchForLocal(client: Client): Promise<BranchWithUrl | undefined> {
   const { projectId, env } = getConfig()
@@ -76,4 +76,12 @@ export async function tagBranchForBuild(client: Client): Promise<BranchWithUrl |
 
     throw error
   }
+}
+
+export function getBranchName(branch: Branch): string {
+  if (branch.branchName) {
+    return branch.branchName
+  }
+
+  return branch.environment
 }

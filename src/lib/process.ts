@@ -1,7 +1,8 @@
-import { getBranchForLocal, tagBranchForBuild } from './branches.js'
+import { getBranchForLocal, getBranchName, tagBranchForBuild } from './branches.js'
 import { getClient } from './client.js'
 import { ensureCoreConfig, getConfig } from './config.js'
 import { log } from './log.js'
+import { BranchWithUrl } from './types.js'
 
 export async function setProcessBranchUrl(
   { envVar } = { envVar: 'NEXT_PUBLIC_BRANCH_TAKESHAPE_API_URL' },
@@ -13,7 +14,7 @@ export async function setProcessBranchUrl(
 
   const client = getClient({ adminUrl, apiKey })
 
-  let branch
+  let branch: BranchWithUrl | undefined
 
   log.debug('Using env:', env)
 
@@ -29,7 +30,7 @@ export async function setProcessBranchUrl(
   let branchUrl: string | undefined
 
   if (branch) {
-    log.info(`Setting API URL for branch '${branch.branchName}'`)
+    log.info(`Setting API URL for branch '${getBranchName(branch)}'`)
     branchUrl = branch.graphqlUrl
   } else {
     log.info(`Using default API URL`)
