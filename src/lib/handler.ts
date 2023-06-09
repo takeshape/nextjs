@@ -1,5 +1,5 @@
 import { CommandModule } from 'yargs'
-import { ConfigOptions, getConfig } from './config'
+import { ConfigOptions, getConfig } from './config.js'
 
 export function isDisabled(options: ConfigOptions = {}): boolean {
   return Boolean(getConfig(options).apiKey)
