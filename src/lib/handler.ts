@@ -12,7 +12,7 @@ type Handler<T> = CommandModule<unknown, T>['handler']
  */
 export function runIfConfigured<T>(handler: Handler<T>, handlerIfDisabled?: Handler<T>) {
   return (args: any) => {
-    if (isDisabled(...args)) {
+    if (isDisabled(args)) {
       return handlerIfDisabled?.(args)
     }
 
