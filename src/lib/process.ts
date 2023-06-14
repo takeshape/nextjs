@@ -7,6 +7,10 @@ import { BranchWithUrl } from './types.js'
 export async function setProcessBranchUrl(
   { envVar } = { envVar: 'NEXT_PUBLIC_BRANCH_TAKESHAPE_API_URL' },
 ): Promise<string | undefined> {
+  if (!getConfig().apiKey) {
+    return
+  }
+
   const { adminUrl, apiKey, env } = ensureCoreConfig()
   const { apiUrl } = getConfig()
 
