@@ -2,7 +2,7 @@ import { CommandModule } from 'yargs'
 import { ConfigOptions, getConfig } from './config.js'
 
 export function isDisabled(options: ConfigOptions = {}): boolean {
-  return Boolean(getConfig(options).apiKey)
+  return !getConfig(options).apiKey
 }
 
 type Handler<T> = CommandModule<unknown, T>['handler']
