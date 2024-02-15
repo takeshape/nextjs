@@ -22,7 +22,7 @@ export const getBranchQuery = gql`
     $branchName: String
     $projectId: String!
   ) {
-    result: tsGetSchemaBranch(
+    result: getSchemaBranch(
       projectId: $projectId
       environment: $environment
       branchName: $branchName
@@ -54,7 +54,7 @@ type TagBranchMutationPayload = {
 
 export const tagBranchMutation = gql`
   mutation TagBranchMutation($input: TSCreateSchemaBranchTagInput!) {
-    result: tsCreateSchemaBranchTag(input: $input) {
+    result: createSchemaBranchTag(input: $input) {
       branchVersion {
         environment
         branchName
@@ -76,7 +76,7 @@ type CreateBranchMutationPayload = {
 
 export const createBranchMutation = gql`
   mutation CreateBranchMutation($input: TSCreateSchemaBranchInput!) {
-    result: tsCreateSchemaBranch(input: $input) {
+    result: createSchemaBranch(input: $input) {
       branch {
         environment
         branchName
@@ -98,7 +98,7 @@ type DeleteBranchMutationPayload = {
 
 export const deleteBranchMutation = gql`
   mutation DeleteBranchMutation($input: TSDeleteSchemaBranchInput!) {
-    result: tsDeleteSchemaBranch(input: $input) {
+    result: deleteSchemaBranch(input: $input) {
       deletedBranch {
         environment
         branchName
@@ -128,7 +128,7 @@ type MergeBranchMutationPayload = {
 
 export const mergeBranchMutation = gql`
   mutation MergeBranchMutation($input: TSMergeSchemaBranchInput!) {
-    result: tsMergeSchemaBranch(input: $input) {
+    result: mergeSchemaBranch(input: $input) {
       deletedBranch {
         environment
         branchName
