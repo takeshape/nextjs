@@ -1,4 +1,4 @@
-import { graphql } from 'msw'
+import { graphql, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 import { afterAll, afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest'
 import { getClient } from '../client'
@@ -11,28 +11,44 @@ const branchName = 'my_branch'
 const graphqlUrl = 'https://api.takeshape.io/project/12345-abcdef/development/my_branch/graphql'
 
 export const handlers = [
-  graphql.query('GetSchemaBranchQuery', (_req, res, ctx) => {
-    return res(ctx.data({ result: { branchName, graphqlUrl } }))
+  graphql.query('GetSchemaBranchQuery', () => {
+    return HttpResponse.json({
+      data: {
+        result: {
+          branchName,
+          graphqlUrl,
+        },
+      },
+    })
   }),
-  graphql.mutation('TagBranchMutation', (_req, res, ctx) => {
-    return res(ctx.data({ result: { branchVersion: { branchName, graphqlUrl } } }))
+  graphql.mutation('TagBranchMutation', () => {
+    return HttpResponse.json({
+      data: {
+        result: {
+          branchVersion: {
+            branchName,
+            graphqlUrl,
+          },
+        },
+      },
+    })
   }),
 
-  graphql.mutation('CreateBranchMutation', (req, res, ctx) => {
-    if (req.variables['input'].branchName === 'duplicate') {
-      return res(
-        ctx.errors([
+  graphql.mutation('CreateBranchMutation', ({ variables }) => {
+    if (variables['input'].branchName === 'duplicate') {
+      return HttpResponse.json({
+        errors: [
           {
             message: 'Branch already exists',
             locations: [{ line: 3, column: 5 }],
             path: ['result'],
             type: 'GraphQLError',
           },
-        ]),
-      )
+        ],
+      })
     }
 
-    return res(ctx.data({ result: { branch: { branchName, graphqlUrl } } }))
+    return HttpResponse.json({ data: { result: { branch: { branchName, graphqlUrl } } } })
   }),
 ]
 
